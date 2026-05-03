@@ -1,0 +1,35 @@
+---
+import CollectionLayout from "@components/notes/CollectionLayout.astro";
+import { getEntries, getIndex } from "@lib/contentParser";
+import { sortByDate } from "@lib/sortFunctions";
+import { getPageSize, PAGINATION_CONFIG } from "@lib/config";
+import { getTaxa } from "@lib/taxonomyParser";
+import type { NotesEntry } from "@/types";
+
+export async function getStaticPaths({ paginate }: any) {
+  const pageSize = PAGINATION_CONFIG.NOTES_DEFAULT_PAGE_SIZE;
+  const entries = await getEntries("notes", sortByDate);
+  const entryIndex = await getIndex("notes");
+  const tags = await getTaxa("notes", "tags");
+
+  return paginate(entries, {
+    pageSize,
+    props: { entryIndex, tags, allNotesCount: entries.length },
+  });
+}
+const entriesPerPage = getPageSize("notes");
+const entries = (await getEntries("notes", sortByDate)) as NotesEntry[];
+// 从 Astro.props 中获取分页数据
+const { page, entryIndex, tags, allNotesCount } = Astro.props;
+const { currentPage, data: currentEntries } = page;
+const pageCount: number = Math.ceil(entries.length / entriesPerPage);
+---
+
+<CollectionLayout
+  entryIndex={entryIndex}
+  entries={currentEntries}
+  tags={tags}
+  pageIndex={currentPage}
+  pageCount={pageCount}
+  allNotesCount={allNotesCount}
+/>

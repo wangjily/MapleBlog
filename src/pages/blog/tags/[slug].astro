@@ -1,0 +1,77 @@
+---
+import type { BlogEntry } from "@/types";
+import TaxonLayout from "@components/blog/TaxonLayout.astro";
+import { getCollection } from "astro:content";
+import { slugify } from "@lib/textConverter";
+
+export const prerender = true;
+
+// 生成所有标签页面的静态路径
+export async function getStaticPaths() {
+  const allPosts = await getCollection("blog", ({ data }) => {
+    return data.status === "published" && !data.draft;
+  });
+
+  // 收集所有标签
+  const allTags = new Set<string>();
+  allPosts.forEach(post => {
+    if (post.data.tags && Array.isArray(post.data.tags)) {
+      post.data.tags.forEach(tag => {
+        allTags.add(tag);
+      });
+    }
+  });
+
+  // 为每个标签生成路径
+  return Array.from(allTags).map(tag => ({
+    params: { slug: slugify(tag) },
+    props: { taxon: tag }
+  }));
+}
+
+const { taxon } = Astro.props;
+const { slug } = Astro.params;
+
+// 获取当前标签下的所有文章
+const allPosts = await getCollection("blog", ({ data }) => {
+  return data.status === "published" && !data.draft;
+});
+
+// 筛选包含当前标签的文章
+const entries: BlogEntry[] = allPosts
+  .filter(post => {
+    return post.data.tags && 
+           Array.isArray(post.data.tags) && 
+           post.data.tags.some(tag => slugify(tag) === slug);
+  })
+  .map(post => ({
+    id: post.id,
+    slug: post.id,
+    body: post.body,
+    collection: 'blog',
+    data: {
+      title: post.data.title,
+      description: post.data.description,
+      publishedAt: post.data.publishedAt || post.data.createdAt,
+      updatedAt: post.data.updatedAt,
+      image: post.data.image,
+      categories: post.data.categories,
+      tags: post.data.tags || [],
+      author: post.data.author,
+      featured: post.data.featured,
+      status: post.data.status,
+      draft: post.data.draft,
+      imageAlt: post.data.imageAlt,
+      recommended: post.data.recommended,
+      views: post.data.views,
+      hideToc: post.data.hideToc
+    }
+  } as BlogEntry))
+  .sort((a, b) => {
+    const dateA = new Date(a.data.publishedAt!);
+    const dateB = new Date(b.data.publishedAt!);
+    return dateB.getTime() - dateA.getTime();
+  });
+---
+
+<TaxonLayout taxon={taxon} entries={entries} />

@@ -1,0 +1,645 @@
+// Markdown内容样式
+// 针对 Astro render() 生成的内容进行优化
+// Shiki 双主题支持 - 黑暗模式
+.dark pre.astro-code {
+  @apply rounded-[25px];
+}
+
+.dark pre.astro-code,
+.dark pre.astro-code span,
+.dark pre.astro-code code {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+  font-style: var(--shiki-dark-font-style) !important;
+  font-weight: var(--shiki-dark-font-weight) !important;
+  text-decoration: var(--shiki-dark-text-decoration) !important;
+}
+
+.dark code {
+  @apply bg-white dark:bg-[#22272e];
+  @apply text-[#24292e] dark:text-[#adbac7];
+  @apply px-2 py-1 rounded-md;
+}
+
+.markdown-content,
+.markdown-content>*,
+.astro-content,
+.tk-comment {
+  pre.astro-code {
+    @apply rounded-[25px];
+  }
+
+  code {
+    @apply bg-white dark:bg-gray-900;
+    @apply text-txt-s dark:text-darkmode-txt-s;
+    @apply px-2 py-1 rounded-md;
+    .line {
+      @apply pl-2;
+    }
+    :first-child {
+      @apply pl-0;
+    }
+  }
+
+  // 确保样式能够应用到 render() 生成的内容
+  //增加黑暗模式下a、strong、em的颜色
+  a,
+  strong,
+  em {
+    @apply text-cyan-700 dark:text-amber-300;
+  }
+
+  @apply text-lg leading-relaxed;
+
+  // 基础元素样式 - 确保 render() 生成的内容正确应用
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-bold mb-4 mt-6 text-txt-p dark:text-darkmode-txt-p;
+    @apply leading-6 md:leading-8;
+  }
+
+  h1 {
+    @apply text-3xl md:text-4xl;
+  }
+
+  h2 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  h3 {
+    @apply text-xl md:text-2xl;
+  }
+
+  h4 {
+    @apply text-lg md:text-xl;
+  }
+
+  h5 {
+    @apply text-base md:text-lg;
+  }
+
+  h6 {
+    @apply text-sm md:text-base;
+  }
+
+  p {
+    @apply text-txt-light dark:text-darkmode-txt-light;
+    @apply mb-2 mt-0;
+    @apply leading-8 md:leading-10 indent-8;
+  }
+
+  ul,
+  ol {
+    @apply mb-4 pl-6;
+  }
+
+  ul {
+    @apply list-disc;
+  }
+
+  ol {
+    @apply list-decimal;
+  }
+
+  li {
+    @apply mb-2 text-txt-p dark:text-darkmode-txt-p leading-8;
+    @apply ml-8 inset-0;
+  }
+
+  li::marker {
+    @apply text-cyan-700 dark:text-amber-300;
+    @apply inset-0;
+  }
+
+  li p {
+    @apply indent-0;
+  }
+
+  blockquote {
+    @apply border-l-4 pl-4 italic my-4 text-txt-s dark:text-darkmode-txt-s;
+  }
+
+
+  // 表格样式 - 直接应用到 table 元素
+  table {
+    @apply w-full border-collapse mb-6 rounded-lg overflow-hidden;
+    border: 1px solid #e5e7eb;
+
+    .dark & {
+      border-color: #374151;
+    }
+
+    th,
+    td {
+      @apply px-4 py-3 text-left border-b;
+      border-color: #e5e7eb;
+
+      .dark & {
+        border-color: #374151;
+      }
+    }
+
+    th {
+      @apply bg-gray-50 font-semibold text-gray-900;
+
+      .dark & {
+        @apply bg-gray-800 text-gray-100;
+      }
+    }
+
+    td {
+      @apply text-gray-700;
+
+      .dark & {
+        @apply text-gray-300;
+      }
+    }
+
+    tr:hover {
+      @apply bg-gray-50;
+
+      .dark & {
+        @apply bg-gray-800;
+      }
+    }
+  }
+
+  // 图片样式 - 直接应用到 img 元素
+  img {
+    @apply mb-6 rounded-[25px] shadow-lg;
+    @apply max-h-[60vh] w-auto;
+  }
+
+  // 分隔线样式
+  hr {
+    @apply my-8 border-gray-100;
+
+    .dark & {
+      @apply border-gray-600;
+    }
+  }
+
+
+  // 保留原有的包装器样式以兼容
+  .table-wrapper {
+    @apply overflow-x-auto mb-6 rounded-lg;
+    border: 1px solid #e5e7eb;
+
+    .dark & {
+      border-color: #374151;
+    }
+
+    .markdown-table {
+      @apply w-full border-collapse;
+
+      th,
+      td {
+        @apply px-4 py-3 text-left border-b;
+        border-color: #e5e7eb;
+
+        .dark & {
+          border-color: #374151;
+        }
+      }
+
+      th {
+        @apply bg-gray-50 font-semibold text-gray-900;
+
+        .dark & {
+          @apply bg-gray-800 text-gray-100;
+        }
+      }
+
+      td {
+        @apply text-gray-700;
+
+        .dark & {
+          @apply text-gray-300;
+        }
+      }
+
+      tr:hover {
+        @apply bg-gray-50;
+
+        .dark & {
+          @apply bg-gray-800;
+        }
+      }
+    }
+  }
+
+  // 图片样式
+  .markdown-image {
+    @apply mb-6 text-center;
+
+    .responsive-image {
+      @apply max-w-full h-auto rounded-lg shadow-lg cursor-pointer transition-transform duration-200;
+      @apply max-h-[80vh];
+
+      &:hover {
+        @apply transform shadow-lg shadow-black/30;
+      }
+    }
+
+    figcaption {
+      @apply mt-2 text-sm text-gray-600 italic;
+
+      .dark & {
+        @apply text-gray-400;
+      }
+    }
+  }
+
+  // 图片模态框样式
+  .image-modal {
+    @apply fixed inset-0 z-50 flex items-center justify-center;
+    // 淡入动画
+    animation: modalFadeIn 0.3s ease-out;
+
+    .image-modal-backdrop {
+      @apply absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center;
+      cursor: zoom-out;
+      // 背景淡入动画
+      animation: backdropFadeIn 0.3s ease-out;
+
+      .image-modal-content {
+        @apply max-w-[90vw] max-h-[90vh] object-contain;
+        cursor: default;
+        // 图片缩放淡入动画
+        animation: imageZoomIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transform-origin: center;
+      }
+
+      .image-modal-close {
+        @apply absolute top-4 right-4 text-white text-3xl font-bold;
+        @apply w-10 h-10 flex items-center justify-center rounded-full;
+        @apply bg-black bg-opacity-50 hover:bg-opacity-75 transition-all duration-200;
+        border: none;
+        cursor: pointer;
+        // 关闭按钮延迟淡入
+        animation: buttonFadeIn 0.5s ease-out 0.2s both;
+
+        &:hover {
+          transform: scale(1.1);
+        }
+      }
+    }
+  }
+
+  // 模态框动画关键帧
+  @keyframes modalFadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes backdropFadeIn {
+    from {
+      opacity: 0;
+      // backdrop-filter: blur(0px);
+    }
+
+    to {
+      opacity: 1;
+      // backdrop-filter: blur(4px);
+    }
+  }
+
+  @keyframes imageZoomIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8) translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  @keyframes buttonFadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  // 淡出动画类（用于关闭时）
+  .image-modal.fade-out {
+    animation: modalFadeOut 0.25s ease-in;
+
+    .image-modal-backdrop {
+      animation: backdropFadeOut 0.25s ease-in;
+    }
+
+    .image-modal-content {
+      animation: imageZoomOut 0.25s ease-in;
+    }
+  }
+
+  @keyframes modalFadeOut {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes backdropFadeOut {
+    from {
+      opacity: 1;
+      // backdrop-filter: blur(4px);
+    }
+
+    to {
+      opacity: 0;
+      // backdrop-filter: blur(0px);
+    }
+  }
+
+  @keyframes imageZoomOut {
+    from {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+
+    to {
+      opacity: 0;
+      transform: scale(0.9) translateY(-10px);
+    }
+  }
+
+  // 引用块样式 - 优化主题适配
+  .markdown-blockquote,
+  blockquote {
+    @apply px-6 py-5 mb-6 relative rounded-md;
+    @apply text-slate-700 dark:text-slate-300;
+    @apply bg-white/20 dark:bg-gray-900/20;
+    border-left: 4px solid #0e7490;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+
+    // 引用图标
+    &::after {
+      content: '"';
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      font-size: 3rem;
+      color: rgba(59, 130, 246, 0.1);
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .dark & {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      border-left-color: #fcd34d;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+
+      &::after {
+        color: rgba(96, 165, 250, 0.15);
+      }
+    }
+
+    // 悬停效果
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      border-left-color: #1293b7;
+
+      .dark & {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+        border-left-color: #ffc400;
+      }
+
+      &::before {
+        opacity: 1;
+      }
+    }
+
+    p:last-child {
+      @apply mb-0;
+    }
+
+    p:first-child {
+      @apply mt-0;
+    }
+
+    // 嵌套引用
+    blockquote {
+      @apply mt-4 ml-4;
+      border-left-color: #8b5cf6;
+
+      .dark & {
+        border-left-color: #a78bfa;
+      }
+    }
+  }
+
+  // 标题锚点样式
+  .anchor-link {
+    @apply text-inherit no-underline;
+
+    &:hover {
+      @apply text-blue-600;
+
+      .dark & {
+        @apply text-blue-400;
+      }
+    }
+  }
+
+  // 标题样式增强
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    &:hover .anchor-link::before {
+      content: '#';
+      @apply absolute -ml-6 text-gray-400 font-normal;
+
+      .dark & {
+        @apply text-gray-600;
+      }
+    }
+  }
+
+  // 列表样式增强
+  ul,
+  ol {
+    @apply mb-4;
+
+    li {
+      @apply mb-1;
+
+      ul,
+      ol {
+        @apply mt-1 mb-1;
+      }
+    }
+  }
+
+  // 任务列表样式
+  ul li {
+    &[data-task] {
+      @apply list-none;
+
+      input[type="checkbox"] {
+        @apply mr-2;
+      }
+    }
+  }
+
+
+
+  // 响应式设计 - 优化移动端体验
+  @media (max-width: 768px) {
+
+    // 代码块移动端优化
+    // .code-block-wrapper {
+    //   @apply mb-4 rounded-lg;
+
+    //   .code-block-header {
+    //     @apply px-3 py-2 text-xs;
+
+    //     .code-language {
+    //       font-size: 0.625rem;
+    //       letter-spacing: 0.05em;
+    //     }
+
+    //     .copy-code-btn {
+    //       @apply px-2 py-1 text-xs;
+
+    //       svg {
+    //         width: 12px;
+    //         height: 12px;
+    //       }
+    //     }
+    //   }
+
+    //   pre {
+    //     @apply p-4;
+
+    //     code {
+    //       @apply text-xs;
+    //       line-height: 1.4;
+    //     }
+    //   }
+
+    //   &:hover {
+    //     transform: none;
+    //   }
+    // }
+
+    // // 简化版代码块移动端优化
+    // pre:not(.code-block-wrapper pre) {
+    //   @apply p-4 mb-4 rounded-lg;
+
+    //   code {
+    //     @apply text-xs;
+    //     line-height: 1.4;
+    //   }
+
+    //   &:hover {
+    //     transform: none;
+    //   }
+    // }
+
+    // // 行内代码移动端优化
+    // code:not(pre code),
+    // :not(pre)>code {
+    //   @apply px-1.5 py-0.5 text-xs;
+
+    //   &:hover {
+    //     transform: none;
+    //   }
+    // }
+
+    // 引用块移动端优化
+    .markdown-blockquote,
+    blockquote {
+      @apply px-4 py-3 mb-4 rounded-lg;
+
+      &::after {
+        font-size: 2rem;
+        top: 0.5rem;
+        right: 1rem;
+      }
+
+      &:hover {
+        transform: none;
+      }
+    }
+
+    // 表格移动端优化
+    .table-wrapper {
+      @apply text-sm;
+
+      .markdown-table {
+
+        th,
+        td {
+          @apply px-2 py-2 text-xs;
+        }
+      }
+    }
+
+    table {
+      @apply text-sm;
+
+      th,
+      td {
+        @apply px-2 py-2 text-xs;
+      }
+    }
+  }
+
+  // 超小屏幕优化
+  @media (max-width: 480px) {
+    // .code-block-wrapper {
+    //   .code-block-header {
+    //     @apply px-2 py-1.5;
+
+    //     .copy-code-btn {
+    //       @apply px-1.5 py-0.5;
+    //     }
+    //   }
+
+    //   pre {
+    //     @apply p-3;
+    //   }
+    // }
+
+    // pre:not(.code-block-wrapper pre) {
+    //   @apply p-3;
+    // }
+
+    .markdown-blockquote,
+    blockquote {
+      @apply px-3 py-2;
+
+      &::after {
+        display: none;
+      }
+    }
+  }
+}

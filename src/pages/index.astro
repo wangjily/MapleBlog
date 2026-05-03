@@ -1,0 +1,262 @@
+---
+import BaseLayout from "@components/base/BaseLayout.astro";
+import Button from "@components/common/Button.astro";
+import BlogCard from "@components/blog/Card.astro";
+import type { BlogEntry } from "@/types";
+import defaultImg from "@assets/site-avatar.png"; // 特色文章默认封面
+import LiquidGlass from "@components/common/LiquidGlassLess.astro";
+import HomeNotesPreview from "@components/notes/HomeNotesPreview.astro";
+import ArticleCalendar from "@components/home/ArticleCalendar.astro";
+import AuthorProfile from "@components/home/AuthorProfile.astro";
+import { type CollectionEntry } from "astro:content";
+import { getSiteStats } from "@lib/contentParser";
+import { sortByDate } from "@lib/sortFunctions";
+import { getEntries } from "@lib/contentParser";
+import RecentComments from "@components/common/RecentComments.astro";
+import RecommendedReadCardComponent from "@components/blog/RecommendedReadCard.astro";
+// 浏览量组件已移除
+// showInfo 函数将在需要时动态导入
+
+// 社交链接逻辑已移至 AuthorProfile 组件
+
+// 获取所有博客文章并排序
+const allPosts = (await getEntries("blog", sortByDate)) as BlogEntry[];
+const publishedPosts = allPosts
+  .filter((post) => post.data.status === "published")
+  .sort((a, b) => {
+    const dateA = new Date(a.data.publishedAt || 0);
+    const dateB = new Date(b.data.publishedAt || 0);
+    return dateB.getTime() - dateA.getTime();
+  });
+
+// 获取最新的动态内容
+const latestNotes = (await getEntries(
+  "notes",
+  sortByDate,
+)) as CollectionEntry<"notes">[];
+
+// 取前6篇作为特色文章
+const featuredArticles = publishedPosts.slice(0, 8).map((post) => ({
+  id: post.id,
+  slug: post.id,
+  title: post.data.title,
+  image: post.data.image || defaultImg,
+  imageAlt: post.data.imageAlt || post.data.title,
+  excerpt: post.data.description || "",
+  publishedAt: post.data.publishedAt || new Date(),
+  date: post.data.publishedAt || new Date(),
+  categories: post.data.categories ? [post.data.categories] : [],
+  tags: post.data.tags || [],
+  complexity: "beginner",
+  views: post.data.views || 0,
+  featured: post.data.featured || false,
+}));
+
+const featuredPosts = (
+  (await getEntries("blog", sortByDate)) as BlogEntry[]
+).slice(0, 8);
+
+// 获取分类数据
+// 从所有文章中提取分类
+const allCategories = publishedPosts
+  .flatMap((post) => post.data.categories || [])
+  .filter(Boolean);
+const uniqueCategories = [...new Set(allCategories)].sort();
+const categories = uniqueCategories.map((category) => ({
+  name: category,
+  count: publishedPosts.filter((post) =>
+    post.data.categories?.includes(category),
+  ).length,
+  id: category,
+  slug: category?.toLowerCase().replace(/\s+/g, "-"),
+}));
+
+// 获取推荐文章（取前4篇作为推荐）
+const recommendedPosts = featuredPosts.slice(0, 4);
+
+// 获取站点统计数据（静态模式）
+const siteStats = await getSiteStats();
+---
+
+<BaseLayout>
+  <div class="container px-3 lg:px-8">
+    <!-- Hero Banner -->
+    <section class="rounded-[35px] mb-4">
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <!-- 左侧：博主信息 (1/4) -->
+        <div class="xl:col-span-1">
+          <LiquidGlass heavy textClass="h-full">
+            <div class="rounded-[35px] intersect:animate-fadeUp h-full">
+              <AuthorProfile />
+            </div>
+          </LiquidGlass>
+        </div>
+
+        <!-- 右侧：文章日历 (3/4) -->
+        <div class="hidden md:block xl:col-span-2 h-full">
+          <LiquidGlass
+            heavy
+            containerClass="h-full"
+            wrapperClass="dock h-full"
+            textClass="p-3"
+          >
+            <div class="rounded-lg intersect:animate-fadeUp h-full">
+              <ArticleCalendar />
+            </div>
+          </LiquidGlass>
+        </div>
+      </div>
+    </section>
+    <!-- Categories Section -->
+    <section class="rounded-lg">
+      <!-- Categories Grid -->
+      <div class="flex flex-wrap gap-2">
+        {
+          categories.slice(0, 6).map((category: any, index: number) => (
+            <a
+              href={`/blog/categories/${category.slug}`}
+              class="text-txt-light dark:text-darkmode-txt-light font-medium"
+              style={`animation-delay: ${index * 100}ms`}
+            >
+              <LiquidGlass wrapperClass="button">
+                <span class="">{category.name}</span>
+              </LiquidGlass>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+    <!-- Main Content Grid -->
+    <section class="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-6 my-4">
+      <!-- Left Column: Featured Articles -->
+      <LiquidGlass
+        heavy
+        containerClass="lg:col-span-3"
+      >
+        <!-- Featured Articles Section -->
+        <section class="rounded-lg">
+          <div class="p-3">
+            <div class="mb-2">
+              <h2
+                class="text-2xl font-bold mb-2 text-txt-p dark:text-darkmode-txt-p"
+              >
+                最新文章
+              </h2>
+            </div>
+
+            <!-- Articles Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              {
+                featuredPosts.length === 0 ? (
+                  <p class="col-span-full rounded-2xl border border-dashed border-border/60 dark:border-darkmode-border/60 px-6 py-10 text-center text-txt-light dark:text-darkmode-txt-light">
+                    还没有文章。在{" "}
+                    <code class="rounded bg-black/5 px-1.5 py-0.5 text-sm dark:bg-white/10">
+                      src/content/blog
+                    </code>{" "}
+                    下新建 <code class="rounded bg-black/5 px-1.5 py-0.5 text-sm dark:bg-white/10">.md</code>{" "}
+                    文件即可开始写作。
+                  </p>
+                ) : (
+                  featuredPosts.map((post: any) => (
+                    <div class="transform hover:scale-105 transition-transform duration-300 intersect:animate-fadeUp">
+                      <BlogCard entry={post} />
+                    </div>
+                  ))
+                )
+              }
+            </div>
+
+            <!-- View All Articles Button -->
+            {
+              featuredPosts.length > 0 && (
+                <div class="text-center">
+                  <Button
+                    label="查看所有文章"
+                    link="/blog"
+                    newtab={false}
+                    hoverInvert
+                    color=""
+                  />
+                </div>
+              )
+            }
+          </div>
+        </section>
+      </LiquidGlass>
+
+      <!-- Right Column: Sidebar -->
+      <div class="flex flex-col lg:col-span-1 space-y-6">
+        <!-- Recommended Articles -->
+        <LiquidGlass heavy >
+          <section class="rounded-lg pt-3">
+            <div class="flex items-center justify-between mb-4 px-3">
+              <h3 class="text-xl font-bold text-txt-p dark:text-darkmode-txt-p">
+                推荐阅读
+              </h3>
+            </div>
+
+            <div class="space-y-2 px-2 md:px-0">
+              {
+                recommendedPosts.length === 0 ? (
+                  <p class="px-2 pb-2 text-sm text-txt-light dark:text-darkmode-txt-light">
+                    发布文章后会在这里展示推荐阅读。
+                  </p>
+                ) : (
+                  recommendedPosts.slice(0, 4).map((post: any, index: number) => (
+                    <div
+                      class="transform hover:scale-105 transition-transform duration-300 intersect:animate-fadeUp"
+                      style={`animation-delay: ${index * 200}ms`}
+                    >
+                      <RecommendedReadCardComponent
+                        entry={post}
+                        showImage={true}
+                        showReadingTime={true}
+                        compact={false}
+                      />
+                    </div>
+                  ))
+                )
+              }
+            </div>
+          </section>
+        </LiquidGlass>
+
+        <!-- </section> -->
+
+        <!-- Site Messages -->
+        <LiquidGlass heavy >
+          <HomeNotesPreview entries={latestNotes} limit={5} />
+        </LiquidGlass>
+
+        <LiquidGlass heavy >
+          <RecentComments limit={5} />
+        </LiquidGlass>
+
+        <!-- </section> -->
+      </div>
+    </section>
+  </div>
+  <!-- 浏览量已取消显示 -->
+</BaseLayout>
+
+<style>
+  @keyframes blink {
+    0%,
+    50% {
+      opacity: 1;
+    }
+    51%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .typewriter-cursor::after {
+    content: "|";
+    animation: blink 1.2s infinite;
+    color: #f97316;
+  }
+</style>
+<!-- 社交按钮脚本已移至 AuthorProfile 组件 -->
+
+<script></script>

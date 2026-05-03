@@ -1,0 +1,124 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { plainify, slugify } from "@lib/textConverter";
+import { FaRegCalendarAlt, FaMapMarkerAlt, FaSmile } from "react-icons/fa";
+import { formatDate } from "@lib/formatDate";
+
+interface Props {
+  entries: CollectionEntry<"notes">[];
+  limit?: number;
+}
+
+const { entries, limit = 3 } = Astro.props;
+const displayEntries = entries.slice(0, limit);
+---
+
+<div class="pt-3">
+  <div class="flex items-center justify-between mb-4 px-3">
+    <h3 class="text-xl font-bold text-txt-p dark:text-darkmode-txt-p">
+      站点动态
+    </h3>
+  </div>
+
+  <div class="space-y-1">
+    {
+      displayEntries.length === 0 ? (
+        <p class="px-4 pb-4 text-sm text-txt-light dark:text-darkmode-txt-light">
+          暂无动态。在{" "}
+          <code class="rounded bg-black/5 px-1.5 py-0.5 text-xs dark:bg-white/10">
+            src/content/notes
+          </code>{" "}
+          下新建 <code class="rounded bg-black/5 px-1.5 py-0.5 text-xs dark:bg-white/10">.md</code>{" "}
+          即可发布短内容。
+        </p>
+      ) : (
+        displayEntries.map((entry, index) => {
+        const { title, description, createdAt, mood, location } = entry.data;
+        const entryDate = createdAt ? formatDate(createdAt) : null;
+        // 安全地获取内容预览，确保entry.body存在
+        const contentPreview = entry.body
+          ? plainify(entry.body).slice(0, 100) +
+            (plainify(entry.body).length > 100 ? "..." : "")
+          : "";
+
+        return (
+          <div
+            class="group rounded-[25px] hover:bg-primary/5 transition-all duration-300 intersect:animate-fadeUp opacity-0 py-2 px-4
+             hover:bg-orange-500 dark:hover:bg-orange-500 hover:text-darkmode-txt-light [&_*]:hover:text-darkmode-txt-p"
+            style={`animation-delay: ${index * 200}ms`}
+          >
+            <div class="flex items-start space-x-2">
+              {/* 优先级指示器 */}
+              {/* <div class="flex-shrink-0 w-2 h-2 rounded-full mt-2 bg-green-500" /> */}
+              <a
+                href={`/notes/${slugify(entry.data.title)}`}
+                class="hover:text-primary transition-colors duration-0"
+              >
+                <div class="flex-1 min-w-0">
+                  <span class="font-normal text-txt-p dark:text-darkmode-txt-p mb-1 line-clamp-1">
+                    {title}
+                  </span>
+                  { //内容预览
+                  /* <p class="text-sm text-txt-light dark:text-darkmode-txt-light line-clamp-2 leading-relaxed mb-2">
+                    {description || contentPreview}
+                  </p> */}
+
+                  {/* 元数据区域 */}
+                  <div class="flex flex-wrap items-center gap-2 mb-1">
+                    {entryDate && (
+                      <time class="text-xs text-txt-light dark:text-darkmode-txt-light opacity-70 flex items-center">
+                        <FaRegCalendarAlt className="mr-1 text-[10px]" />
+                        {entryDate}
+                      </time>
+                    )}
+
+                    {mood && (
+                      <span class="text-xs text-txt-light dark:text-darkmode-txt-light opacity-70 flex items-center">
+                        <FaSmile className="mr-1 text-[10px]" />
+                        {mood}
+                      </span>
+                    )}
+
+                    {location && (
+                      <span class="text-xs text-txt-light dark:text-darkmode-txt-light opacity-70 flex items-center">
+                        <FaMapMarkerAlt className="mr-1 text-[10px]" />
+                        {location}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div>
+        );
+      })
+      )
+    }
+  </div>
+
+  {/* 查看更多链接 */}
+  {
+    displayEntries.length > 0 && (
+      <div class="mt-4 text-center">
+        <a
+          href="/notes"
+          class="text-sm text-primary hover:text-primary-dark transition-colors inline-flex items-center"
+        >
+          查看更多动态
+          <svg
+            class="ml-1 w-3 h-3 transition-transform duration-200 group-hover:translate-x-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5l7 7-7 7"></path>
+          </svg>
+        </a>
+      </div>
+    )
+  }
+</div>

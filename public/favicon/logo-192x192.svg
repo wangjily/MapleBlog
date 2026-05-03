@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f97316;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#dc2626;stop-opacity:0.1"/>
+    </linearGradient>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f97316"/>
+      <stop offset="50%" style="stop-color:#ea580c"/>
+      <stop offset="100%" style="stop-color:#dc2626"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="192" height="192" rx="48" fill="url(#bg)"/>
+  <rect x="4" y="4" width="184" height="184" rx="44" fill="none" stroke="rgba(249,115,22,0.3)" stroke-width="2"/>
+  <rect x="8" y="8" width="176" height="176" rx="40" fill="none" stroke="rgba(249,115,22,0.15)" stroke-width="1"/>
+
+  <g transform="translate(96, 98)" filter="url(#glow)">
+    <!-- Main stem -->
+    <line x1="0" y1="16" x2="0" y2="-40" stroke="url(#g)" stroke-width="6" stroke-linecap="round"/>
+    <!-- Branch left 1 -->
+    <line x1="0" y1="-5" x2="-26" y2="-28" stroke="url(#g)" stroke-width="5" stroke-linecap="round"/>
+    <!-- Branch right 1 -->
+    <line x1="0" y1="-5" x2="26" y2="-28" stroke="url(#g)" stroke-width="5" stroke-linecap="round"/>
+    <!-- Branch left 2 -->
+    <line x1="0" y1="6" x2="-22" y2="-12" stroke="url(#g)" stroke-width="5" stroke-linecap="round"/>
+    <!-- Branch right 2 -->
+    <line x1="0" y1="6" x2="22" y2="-12" stroke="url(#g)" stroke-width="5" stroke-linecap="round"/>
+
+    <!-- Leaf 1 - top -->
+    <path d="M0,-40 C-14,-52 -30,-48 -32,-36 C-34,-24 -24,-14 -10,-18 C-4,-20 0,-28 0,-40Z" fill="url(#g)" opacity="0.95"/>
+    <!-- Leaf 2 - top left -->
+    <path d="M-26,-28 C-38,-40 -50,-36 -52,-24 C-54,-12 -44,-4 -30,-8 C-22,-11 -16,-18 -26,-28Z" fill="url(#g)" opacity="0.85"/>
+    <!-- Leaf 3 - top right -->
+    <path d="M26,-28 C38,-40 50,-36 52,-24 C54,-12 44,-4 30,-8 C22,-11 16,-18 26,-28Z" fill="url(#g)" opacity="0.85"/>
+    <!-- Leaf 4 - left -->
+    <path d="M-22,-12 C-34,-22 -42,-18 -44,-8 C-46,2 -38,8 -24,4 C-18,2 -12,-4 -22,-12Z" fill="url(#g)" opacity="0.75"/>
+    <!-- Leaf 5 - right -->
+    <path d="M22,-12 C34,-22 42,-18 44,-8 C46,2 38,8 24,4 C18,2 12,-4 22,-12Z" fill="url(#g)" opacity="0.75"/>
+    <!-- Leaf 6 - bottom left -->
+    <path d="M-16,8 C-28,0 -36,4 -36,14 C-36,24 -28,28 -16,24 C-10,22 -6,16 -16,8Z" fill="url(#g)" opacity="0.65"/>
+    <!-- Leaf 7 - bottom right -->
+    <path d="M16,8 C28,0 36,4 36,14 C36,24 28,28 16,24 C10,22 6,16 16,8Z" fill="url(#g)" opacity="0.65"/>
+  </g>
+</svg>

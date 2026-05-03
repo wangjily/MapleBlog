@@ -1,0 +1,70 @@
+---
+import BaseLayout from "@components/base/BaseLayout.astro";
+import { plainify } from "@lib/textConverter";
+import { render, type CollectionEntry } from "astro:content";
+import EntryHeader from "@components/common/EntryHeader.astro";
+import LiquidGlassLess from "@components/common/LiquidGlassLess.astro";
+import Comment from "@components/base/Comment.astro";
+import type { BlogEntry } from "@/types";
+
+interface Props {
+  entry: CollectionEntry<"blog">;
+}
+
+const isDev = import.meta.env.DEV;
+const { entry } = Astro.props;
+const isDraft = entry.data.draft;
+const { title, description, image } = entry.data;
+
+const entryDescription =
+  description ||
+  (entry.body ? plainify(entry.body.slice(0, 200)) : "");
+---
+
+<BaseLayout title={title} description={entryDescription} image={image?.src}>
+  <!-- 草稿提示 -->
+  {
+    isDraft && isDev && (
+      <section class="flex container px-3 lg:px-8">
+        <div class="bg-yellow-100 dark:bg-yellow-900 border-l-4 border-yellow-500 p-4 mb-6 w-full rounded-r-lg">
+          <p class="text-sm text-yellow-700 dark:text-yellow-200">
+            这是一篇草稿文章，仅在开发环境可见
+          </p>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- 文章头部信息 -->
+  <section class="container px-3 lg:px-8">
+    <EntryHeader
+      entry={entry}
+      showImage
+      showAuthor
+      showDate
+      showReadingTime
+      showCategories
+      showTags
+    />
+  </section>
+
+  <!-- 文章正文 -->
+  <section class="container px-3 lg:px-8 pb-6">
+    <LiquidGlassLess
+      heavy
+      wrapperClass="rounded-[28px]"
+      textClass="p-5 lg:p-8"
+    >
+      <div class="markdown-content">
+        <slot />
+      </div>
+    </LiquidGlassLess>
+  </section>
+
+  <!-- 评论区 -->
+  <section class="container px-3 lg:px-8 pb-8">
+    <LiquidGlassLess heavy wrapperClass="rounded-[28px]" textClass="p-5 lg:p-8">
+      <Comment />
+    </LiquidGlassLess>
+  </section>
+</BaseLayout>

@@ -1,0 +1,160 @@
+---
+import LiquidGlass from "@components/common/LiquidGlassLess.astro";
+import { getSiteStats } from "@lib/contentParser";
+
+// 静态底部菜单
+const footerMenus = [
+  { name: "首页", url: "/", target: "_self" },
+  { name: "博客", url: "/blog", target: "_self" },
+  { name: "关于", url: "/about", target: "_self" },
+  { name: "搜索", url: "/search", target: "_self" },
+  { name: "条款", url: "/terms", target: "_self" },
+  { name: "友链", url: "/links", target: "_self" },
+];
+
+// 获取统计数据
+const siteStatsData = await getSiteStats();
+
+// 本地模式：不统计全站浏览量，展示占位或从 content 统计文章数/字数
+let totalViews = "--";
+const statsData = {
+  totalWords: siteStatsData.totalWords,
+  runningDays: siteStatsData.runningDays,
+  totalViews: totalViews,
+  totalArticles: siteStatsData.articles.toString(),
+};
+---
+
+<footer
+  id="main-footer"
+  class="container px-3 lg:px-8 fixed bottom-0 left-0 right-0 z-40 pointer-events-none transition-all duration-300 fast-slow"
+>
+  <div class="mx-auto py-2 md:py-4">
+    <!-- 整体浮动容器 -->
+    <div
+      class="rounded-full pointer-events-auto transition-all duration-300 fast-slow"
+    >
+      <LiquidGlass
+        enableGlassEffect
+        containerType="nav"
+        wrapperClass="px-6 py-2 rounded-full hover:bg-white/30 dark:bg-black/20 dark:hover:bg-black/50"
+        effectClass="rounded-full"
+        textClass="rounded-full"
+        tintClass="rounded-full"
+        shineClass="rounded-full"
+        animation="fadeDown"
+      >
+        <div class="">
+          <!-- 展开状态：显示所有信息 -->
+          <div
+            id="footer-expanded"
+            class="opacity-0 max-h-0 transition-all duration-300 fast-slow overflow-hidden"
+          >
+            <div class="z-50 flex flex-row justify-between items-center">
+              <!-- 导航菜单 -->
+              <div class="hidden md:block">
+                <ul
+                  class="flex flex-wrap justify-center items-center gap-1 md:gap-2"
+                >
+                  {
+                    footerMenus.map((menu) => (
+                      <li class="relative">
+                        <a
+                          href={menu.url}
+                          target={menu.target}
+                          class="block px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm font-medium text-txt-p transition-all duration-300 dark:text-darkmode-txt-p rounded-lg relative z-10 hover:text-orange-500 hover:bg-white/10"
+                        >
+                          {menu.name}
+                        </a>
+                      </li>
+                    ))
+                  }
+                </ul>
+              </div>
+
+              <!-- 统计数据和返回顶部 -->
+              <div class="text-center hidden md:flex md:items-center md:gap-2">
+                <div
+                  class="flex flex-wrap items-center justify-center gap-x-1 gap-y-1 md:gap-x-2 text-xs md:text-sm text-txt-light dark:text-darkmode-txt-light"
+                >
+                  <!-- 浏览量已取消显示 -->
+                   ·
+                  <span>{statsData.totalArticles} 文章</span>
+                   ·
+                  <span>全站 {statsData.totalWords} 字</span>
+                   ·
+                  <span>运行 {statsData.runningDays} 天</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </LiquidGlass>
+    </div>
+  </div>
+</footer>
+
+<!-- Footer 滚动控制脚本 -->
+<script>
+  function initFooterScroll() {
+    const footer = document.getElementById("main-footer");
+    const expandedContent = document.getElementById("footer-expanded");
+
+    if (!footer || !expandedContent) return;
+
+    let isExpanded = false;
+
+    function checkScrollPosition() {
+      const scrollTop =
+        window.pageYOffset || document.documentElement.scrollTop;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+
+      // 判断是否滚动到底部（允许一些误差）
+      const isAtBottom = scrollTop + windowHeight >= documentHeight - 50;
+
+      if (isAtBottom && !isExpanded && expandedContent) {
+        // 展开footer
+        expandedContent.style.opacity = "1";
+        // 根据屏幕尺寸设置不同的最大高度
+        expandedContent.style.maxHeight = "200px";
+        // expandedContent?.classList.add("-mt-10");
+        isExpanded = true;
+      } else if (!isAtBottom && isExpanded && expandedContent) {
+        // 收缩footer
+        expandedContent.style.opacity = "0";
+        expandedContent.style.maxHeight = "0";
+        // expandedContent.classList.remove("-mt-10");
+        isExpanded = false;
+      }
+    }
+
+    // 节流函数
+    let ticking = false;
+    function throttledScroll() {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          checkScrollPosition();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }
+
+    // 监听滚动事件
+    window.addEventListener("scroll", throttledScroll, { passive: true });
+
+    // 初始检查
+    checkScrollPosition();
+  }
+
+  // 页面加载完成后初始化
+  document.addEventListener("DOMContentLoaded", () => {
+    initFooterScroll();
+  });
+
+  // Astro 页面切换后重新初始化
+  document.addEventListener("astro:page-load", () => {
+    initFooterScroll();
+  });
+</script>

@@ -1,0 +1,25 @@
+---
+import TaxaLayout from "@components/notes/TaxaLayout.astro";
+import { getCollection } from "astro:content";
+import { slugify } from "@lib/textConverter";
+
+const taxonomy = "tags";
+
+// 从content collections获取所有已发布的博客文章
+const allPosts = await getCollection("notes");
+
+// 提取所有标签
+let allTaxa: string[] = [];
+allPosts.forEach(post => {
+  if (post.data.tags && Array.isArray(post.data.tags)) {
+    post.data.tags.forEach(tag => {
+      allTaxa.push(slugify(tag));
+    });
+  }
+});
+
+// 获取唯一标签列表并排序
+const taxa = [...new Set(allTaxa)].sort((a, b) => a.localeCompare(b));
+---
+
+<TaxaLayout taxonomy={taxonomy} taxa={taxa} allTaxa={allTaxa} />

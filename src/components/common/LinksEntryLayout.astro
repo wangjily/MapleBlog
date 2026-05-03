@@ -1,0 +1,131 @@
+---
+import BaseLayout from "@/components/base/BaseLayout.astro";
+import FriendLinks from "@/components/common/FriendLinks.astro";
+import LiquidGlassLess from "./LiquidGlassLess.astro";
+import Comment from "@/components/base/Comment.astro";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  entry: CollectionEntry<"pages">;
+}
+
+const { entry } = Astro.props;
+const title = entry.data.title ?? "友情链接";
+const description = entry.data.description ?? "与志同道合的朋友们一起成长";
+---
+
+<BaseLayout title={title} description={description}>
+  <!-- Hero Section -->
+  <section class="container px-3 lg:px-8 pt-8 pb-4">
+    <div class="relative text-center">
+      <div class="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+        <svg class="w-64 h-64 opacity-[0.06]" viewBox="0 0 100 100" fill="currentColor">
+          <path d="M50 5 C30 20 10 25 8 40 C6 55 20 65 30 60 C35 58 38 52 40 45 C42 38 50 35 50 20 C50 35 58 38 60 45 C62 52 65 58 70 60 C80 65 94 55 92 40 C90 25 70 20 50 5Z" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="relative">
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-3 tracking-tight">
+          <span class="bg-gradient-to-r from-orange-500 via-red-500 to-amber-500 bg-clip-text text-transparent">{title}</span>
+        </h1>
+        <p class="text-txt-light dark:text-darkmode-txt-light text-lg md:text-xl max-w-xl mx-auto">
+          {description}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 统计数据 -->
+  <section class="container px-3 lg:px-8 pb-4">
+    <div class="grid grid-cols-2 gap-3 lg:gap-4 max-w-md mx-auto">
+      <div class="text-center p-4 rounded-2xl bg-white/30 dark:bg-black/30 border border-white/20 dark:border-white/10 backdrop-blur-md">
+        <div class="text-2xl lg:text-3xl font-bold text-orange-500" id="total-count">0</div>
+        <div class="text-xs text-txt-light dark:text-darkmode-txt-light mt-1">个友链</div>
+      </div>
+      <div class="text-center p-4 rounded-2xl bg-white/30 dark:bg-black/30 border border-white/20 dark:border-white/10 backdrop-blur-md">
+        <div class="text-2xl lg:text-3xl font-bold text-orange-500" id="category-count">0</div>
+        <div class="text-xs text-txt-light dark:text-darkmode-txt-light mt-1">个分类</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 友链列表 -->
+  <section class="container px-3 lg:px-8 pb-4">
+    <LiquidGlassLess wrapperClass="panel" heavy textClass="w-full rounded-[28px] p-5 lg:p-8">
+      <FriendLinks />
+    </LiquidGlassLess>
+  </section>
+
+  <!-- 友链申请说明 -->
+  <section class="container px-3 lg:px-8 pb-4">
+    <LiquidGlassLess heavy textClass="p-5 lg:p-6 rounded-[28px]">
+      <div class="flex items-start gap-3 mb-4">
+        <div class="w-10 h-10 rounded-full bg-orange-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-txt-p dark:text-darkmode-txt-p mb-1">申请友链</h3>
+          <p class="text-sm text-txt-light dark:text-darkmode-txt-light leading-relaxed">
+            欢迎互换友链！请确保您的网站内容健康、运行稳定。<br/>
+            申请格式：站点名称 · 站点地址 · 站点描述 · 站点图标
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 text-sm text-txt-light dark:text-darkmode-txt-light">
+        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+        友链申请开放中
+      </div>
+    </LiquidGlassLess>
+  </section>
+
+  <!-- 留言板模块 -->
+  <section class="container px-3 lg:px-8 pb-8">
+    <LiquidGlassLess heavy textClass="p-5 lg:p-8 rounded-[28px]">
+      <!-- 标题 -->
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-10 h-10 rounded-full bg-orange-500/15 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+        </div>
+        <h2 class="text-lg font-bold text-txt-p dark:text-darkmode-txt-p">给我留言</h2>
+      </div>
+
+      <!-- 提示语卡片 -->
+      <div class="mb-6 p-4 rounded-2xl bg-white/30 dark:bg-black/30 border border-white/20 dark:border-white/10 backdrop-blur-md">
+        <p class="text-sm text-txt-light dark:text-darkmode-txt-light leading-relaxed">
+          💬 友链合作、问题反馈、或者只是想打个招呼，都欢迎留言！
+          <br/>
+          <span class="text-xs opacity-60">文明发言，互相尊重。</span>
+        </p>
+      </div>
+
+      <!-- 评论区 -->
+      <div class="twikoo-wrapper">
+        <Comment />
+      </div>
+    </LiquidGlassLess>
+  </section>
+</BaseLayout>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const totalEl = document.getElementById("total-count");
+    const catEl = document.getElementById("category-count");
+
+    if (totalEl) {
+      const observer = new MutationObserver(() => {
+        const categoriesEl = document.getElementById("friend-links-categories");
+        if (categoriesEl && !categoriesEl.classList.contains("hidden")) {
+          const cards = categoriesEl.querySelectorAll(".friend-item");
+          if (cards.length > 0) totalEl.textContent = String(cards.length);
+          const cats = categoriesEl.querySelectorAll(".category-section");
+          if (cats.length > 0 && catEl) catEl.textContent = String(cats.length);
+        }
+      });
+      const target = document.getElementById("friend-links-categories");
+      if (target) observer.observe(target, { attributes: true, attributeFilter: ["class"] });
+    }
+  });
+</script>

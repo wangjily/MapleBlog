@@ -1,0 +1,47 @@
+// 引用主样式文件以支持 @apply 指令
+@reference "main";
+
+// Section
+.section {
+  @apply py-12 xl:py-8;
+  &-sm {
+    @apply py-8 xl:py-6;
+  }
+}
+
+// Container - 使用 CSS 属性替代 @apply 以确保兼容性
+// .container {
+//   margin: 0 auto;
+//   max-width: 1300px;
+//   padding: 0 1rem;
+// }
+// .container-l {
+//   margin: 0 auto;
+//   max-width: 1300px;
+//   padding: 0;
+// }
+
+// Border - 使用 CSS 属性替代 @apply
+.rounded-sm {
+  border-radius: 4px;
+}
+.rounded {
+  border-radius: 6px;
+}
+.rounded-lg {
+  border-radius: 12px;
+}
+.rounded-xl {
+  border-radius: 16px;
+}
+
+// Header Conditionals - 使用 CSS 属性替代 @apply
+input#nav-toggle:checked + label #show-button {
+  display: none;
+}
+input#nav-toggle:checked + label #hide-button {
+  display: block;
+}
+input#nav-toggle:checked ~ #nav-menu {
+  display: block;
+}

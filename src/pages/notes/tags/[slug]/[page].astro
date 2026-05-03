@@ -1,0 +1,139 @@
+---
+import CollectionLayout from "@components/notes/CollectionLayout.astro";
+import { getCollection } from "astro:content";
+import { slugify } from "@lib/textConverter";
+import { getPageSize } from "@lib/config";
+import type { NotesEntry } from "@/types";
+
+console.log("进入slug页面");
+// 生成所有分类页面的静态路径和分页
+export async function getStaticPaths() {
+  const allPosts = await getCollection("notes");
+
+  // 收集所有标签及其文章
+  const tagPosts = new Map<string, any[]>();
+  allPosts.forEach((post: any) => {
+    const postTags = post.data.tags;
+    if (postTags && Array.isArray(postTags)) {
+      postTags.forEach((tag: string) => {
+        const tagSlug = slugify(tag);
+        if (!tagPosts.has(tagSlug)) {
+          tagPosts.set(tagSlug, []);
+        }
+        tagPosts.get(tagSlug)!.push({ post, tagName: tag });
+      });
+    }
+  });
+
+  const paths: any[] = [];
+  const entriesPerPage = getPageSize("notes");
+
+  // 为每个标签生成分页路径
+  tagPosts.forEach((posts, tagSlug) => {
+    const tagName = posts[0].tagName;
+    const sortedPosts = posts
+      .map((p) => p.post)
+      .sort((a, b) => {
+        const dateA = a.data.publishedAt || a.data.createdAt;
+        const dateB = b.data.publishedAt || b.data.createdAt;
+        if (!dateA || !dateB) return 0;
+        return new Date(dateB).getTime() - new Date(dateA).getTime();
+      });
+
+    const pageCount = Math.ceil(sortedPosts.length / entriesPerPage);
+
+    // 生成每一页的路径
+    for (let i = 1; i <= pageCount; i++) {
+      const startIndex = (i - 1) * entriesPerPage;
+      const endIndex = startIndex + entriesPerPage;
+      const paginatedPosts = sortedPosts.slice(startIndex, endIndex);
+
+      paths.push({
+        params: {
+          slug: tagSlug,
+          page: i.toString(),
+        },
+        props: {
+          tagName,
+          tagPosts: paginatedPosts,
+          currentPageIndex: i,
+          pageCount,
+          totalArticleCount: sortedPosts.length,
+        },
+      });
+    }
+  });
+
+  return paths;
+}
+
+const { tagName, tagPosts, currentPageIndex, pageCount, totalArticleCount } =
+  Astro.props;
+const { slug, page } = Astro.params;
+// 转换为组件需要的格式
+const entries: NotesEntry[] = tagPosts.map((post: any) => ({
+  id: post.id,
+  // slug: post.id,
+  collection: "notes",
+  body: post.body,
+  data: {
+    title: post.data.title,
+    description: post.data.description,
+    image: post.data.image,
+    imageAlt: post.data.imageAlt || `${post.data.title} - 特色图片`,
+    author: post.data.author,
+    publishedAt: post.data.publishedAt || post.data.createdAt,
+    updatedAt: post.data.updatedAt,
+    categories: post.data.categories,
+    tags: post.data.tags || [],
+    featured: post.data.featured,
+    status: post.data.status,
+    draft: post.data.draft,
+    recommended: post.data.recommended,
+    views: post.data.views,
+    hideToc: post.data.hideToc,
+  },
+}));
+
+// 从notes获取所有标签数据
+const allNotePosts = await getCollection("notes");
+const tagStats = new Map<string, number>();
+allNotePosts.forEach((post) => {
+  if (post.data.tags && Array.isArray(post.data.tags)) {
+    post.data.tags.forEach((tag) => {
+      tagStats.set(tag, (tagStats.get(tag) || 0) + 1);
+    });
+  }
+});
+const tags = Array.from(tagStats.keys())
+  .map((name) => ({
+    name,
+    slug: slugify(name),
+  }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+// 创建entryIndex对象
+const entryIndex: NotesEntry = {
+  id: "notes-tag",
+  collection: "notes" as const,
+  data: {
+    title: tagName,
+    description: `标签"${tagName}"下的动态`,
+    tags: tags.map((tag) => tag.name),
+    draft: false,
+    imageAlt: "动态标签页面",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+};
+---
+
+<CollectionLayout
+  entryIndex={entryIndex}
+  entries={entries}
+  tags={tags.map((tag) => tag.name)}
+  pageIndex={currentPageIndex}
+  pageCount={pageCount}
+  allNotesCount={totalArticleCount}
+  basePath={`/notes/tags/${slug}`}
+/>

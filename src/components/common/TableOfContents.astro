@@ -1,0 +1,118 @@
+---
+import type { HeadingHierarchy } from "@/types/index";
+import type { MarkdownHeading } from "astro";
+import { createHeadingHierarchy } from "@lib/tocUtils";
+import LiquidGlass from "./LiquidGlassLess.astro";
+
+interface Props {
+  headings: MarkdownHeading[];
+  tocDepth?: number;
+}
+
+const { headings, tocDepth = 3 } = Astro.props;
+const heirarchy: HeadingHierarchy[] = createHeadingHierarchy(headings);
+const toc = heirarchy.filter((heading) => heading.depth <= tocDepth);
+---
+
+{
+  toc.length > 0 && (
+    <LiquidGlass heavy animation="fadeLeft" wrapperClass="dock !p-6" >
+      <div class="intersect:animate-fadeLeft">
+        <h2 class="text-2xl border-none mb-3">内容导航</h2>
+        <div class="max-h-96 overflow-y-auto">
+          <ul class="list-none m-0 space-y-1">
+            {toc.map((heading) => (
+              <li class=`${heading.depth === 2 ? "ml-0" : "ml-4"}`>
+                <a href={`#${heading.slug}`} class="block w-full leading-relaxed no-underline hover:text-primary transition-colors duration-200 py-1" data-toc-link>
+                  {heading.text}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </LiquidGlass>
+  )
+}
+
+<style>
+  /* 为所有标题元素添加滚动偏移量，避免被固定头部遮挡 */
+  :global(h1, h2, h3, h4, h5, h6) {
+    scroll-margin-top: 8rem; /* 增加到8rem以确保有足够的偏移量 */
+  }
+  
+  /* 目录链接样式优化 */
+  [data-toc-link] {
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  [data-toc-link]:hover {
+    color: var(--color-primary, #f97316);
+  }
+</style>
+
+<script>
+  // 计算头部实际高度的函数
+  function getHeaderHeight(): number {
+    const header = document.querySelector('header');
+    if (header) {
+      const headerHeight = header.offsetHeight;
+      console.log('Header height:', headerHeight); // 调试信息
+      return headerHeight + 32; // 增加更多缓冲区
+    }
+    return 140; // 增加默认值
+  }
+
+  // 平滑滚动到锚点位置并添加偏移量
+  function setupTocLinks() {
+    const tocLinks = document.querySelectorAll('[data-toc-link]');
+    
+    tocLinks.forEach(link => {
+      // 移除之前的事件监听器（如果存在）
+      const newLink = link.cloneNode(true);
+      link.parentNode?.replaceChild(newLink, link);
+      
+      newLink.addEventListener('click', function(e: Event) {
+        e.preventDefault();
+        const target = e.currentTarget as HTMLAnchorElement;
+        const href = target.getAttribute('href');
+        if (!href) return;
+        
+        const targetId = href.substring(1);
+        const targetElement = document.getElementById(targetId);
+        
+        if (targetElement) {
+          // 获取元素相对于视口的位置
+          const rect = targetElement.getBoundingClientRect();
+          const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          const headerHeight = getHeaderHeight();
+          
+          // 计算目标滚动位置：当前滚动位置 + 元素距离视口顶部的距离 - 头部高度
+          const targetScrollTop = currentScrollTop + rect.top - headerHeight;
+          
+          // 调试信息
+          console.log('Target element:', targetElement);
+          console.log('Element rect.top:', rect.top);
+          console.log('Current scroll top:', currentScrollTop);
+          console.log('Header height:', headerHeight);
+          console.log('Target scroll position:', targetScrollTop);
+          
+          window.scrollTo({
+            top: Math.max(0, targetScrollTop),
+            behavior: 'smooth'
+          });
+          
+          // 更新URL hash
+          history.pushState(null, "", `#${targetId}`);
+        }
+      });
+    });
+  }
+
+  // 页面加载完成后设置
+  document.addEventListener('DOMContentLoaded', setupTocLinks);
+  
+  // 处理页面切换后的重新绑定
+  document.addEventListener('astro:page-load', setupTocLinks);
+</script>

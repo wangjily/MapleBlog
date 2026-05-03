@@ -1,0 +1,117 @@
+---
+interface Props {
+  containerType?: "div" | "section" | "nav" | "header" | "footer";
+  /**
+   * 容器的CSS类名
+   */
+  containerClass?: string;
+  /**
+   * 包装器的CSS类名
+   */
+  wrapperClass?: string;
+  /**
+   * 文本的CSS类名
+   */
+  textClass?: string;
+  /**
+   * 动画类型
+   */
+  animation?: "fadeLeft" | "fadeRight" | "fadeUp" | "fadeDown" | "none";
+  /**
+   * 是否使用更重的效果（-h后缀）
+   */
+  heavy?: boolean;
+  /**
+   * 是否显示容器
+   */
+  showContainer?: boolean;
+
+  /**
+   * 效果的CSS类名
+   */
+  effectClass?: string;
+  /**
+   * 色调的CSS类名
+   */
+  tintClass?: string;
+  /**
+   * 辉光的CSS类名
+   */
+  shineClass?: string;
+}
+
+const {
+  containerType = "div",
+  containerClass = "",
+  wrapperClass = "dock",
+  animation = "fadeUp",
+  heavy = false,
+  showContainer = true,
+  textClass = "",
+  effectClass = "",
+  tintClass = "",
+  shineClass = "",
+} = Astro.props;
+
+// 构建动画类名
+const animationClass =
+  animation !== "none"
+    ? `intersect:animate-${animation} transition-all duration-300 fast-slow`
+    : "";
+
+// 构建效果和色调类名
+const effectClassStr =
+  (heavy ? "liquidGlass-effect-h " : "liquidGlass-effect ") + effectClass;
+const tintClassStr =
+  (heavy ? "liquidGlass-tint-h " : "liquidGlass-tint ") + tintClass;
+---
+
+{
+  containerType === "section" ? (
+    <section class={`liquid-glass-container ${containerClass}`}>
+      <div class={`liquidGlass-wrapper ${wrapperClass}`}>
+        <div class={`liquidGlass-text ${textClass} ${animationClass}`}>
+          <slot />
+        </div>
+      </div>
+    </section>
+  ) : containerType === "nav" ? (
+    <nav class={`liquid-glass-container ${containerClass}`}>
+      <div class={`liquidGlass-wrapper ${wrapperClass}`}>
+        <div class={`liquidGlass-text ${textClass} ${animationClass}`}>
+          <slot />
+        </div>
+      </div>
+    </nav>
+  ) : containerType === "header" ? (
+    <header class={`liquid-glass-container ${containerClass}`}>
+      <div class={`liquidGlass-wrapper ${wrapperClass}`}>
+        <div class={`liquidGlass-text ${textClass} ${animationClass}`}>
+          <slot />
+        </div>
+      </div>
+    </header>
+  ) : containerType === "footer" ? (
+    <footer class={`liquid-glass-container ${containerClass}`}>
+      <div class={`liquidGlass-wrapper ${wrapperClass}`}>
+        <div class={`liquidGlass-text ${textClass} ${animationClass}`}>
+          <slot />
+        </div>
+      </div>
+    </footer>
+  ) : (
+    <div class={`liquid-glass-container ${containerClass}`}>
+      <div class={`liquidGlass-wrapper ${wrapperClass}`}>
+        <div class={`liquidGlass-text ${textClass} ${animationClass}`}>
+          <slot />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+<style>
+  .liquidGlass-wrapper{
+    @apply bg-white dark:bg-darkmode-bg-p;
+  }
+</style>

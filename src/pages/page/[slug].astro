@@ -1,0 +1,117 @@
+---
+import BaseLayout from "@components/base/BaseLayout.astro";
+import { markdownify } from "@lib/textConverter";
+import { Image } from "astro:assets";
+import LiquidGlass from "@/components/common/LiquidGlassLess.astro";
+import { getCollection, type CollectionEntry, render } from "astro:content";
+// import "../../styles/markdown.scss";
+
+// 页面类型定义
+interface Page {
+  id?: number;
+  title: string;
+  slug: string;
+  content?: string;
+  description?: string;
+  featuredImg?: string;
+  template?: string;
+  status?: string;
+  views?: number;
+  publishedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export async function getStaticPaths() {
+  const blogEntries = await getCollection("pages", ({ data }) => {
+    // 仅为非草稿的文章生成页面
+    return data.draft !== true;
+  });
+  const paths = blogEntries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+
+  return paths;
+}
+
+interface Props {
+  entry: CollectionEntry<"pages">;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<BaseLayout
+  title={entry.data.title}
+  description={entry.data.description || entry.data.title}
+  image={entry.data.image?.src}
+>
+  <section class="">
+    <div class="container pb-4 px-3 lg:px-8">
+      <div class="row justify-center">
+        <LiquidGlass heavy>
+          <div
+            class="rounded-lg p-8 intersect:animate-fadeUp opacity-0 intersect-no-queue"
+          >
+            <!-- 特色图片 -->
+            {
+              entry.data.image && (
+                <div class="mb-8 text-center">
+                  <Image
+                    class="mx-auto rounded-lg shadow-lg max-w-full h-auto"
+                    src={entry.data.image}
+                    alt={entry.data.title}
+                    width={600}
+                    height={600}
+                    loading="eager"
+                  />
+                </div>
+              )
+            }
+
+            <!-- 页面标题 -->
+            <header class="mb-8 text-center">
+              <h1 set:html={markdownify(entry.data.title)} class="h2 mb-4" />
+              {
+                entry.data.description && (
+                  <p class="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+                    {entry.data.description}
+                  </p>
+                )
+              }
+
+              <!-- 页面元信息 -->
+              <div
+                class="flex flex-wrap justify-center items-center gap-4 mt-6 text-sm text-gray-500 dark:text-gray-400"
+              >
+                {
+                  entry.data.createdAt && (
+                    <time datetime={entry.data.createdAt.toISOString()}>
+                      创建于 {entry.data.createdAt.toLocaleDateString("zh-CN")}
+                    </time>
+                  )
+                }
+                {
+                  entry.data.updatedAt && (
+                    <time datetime={entry.data.updatedAt.toISOString()}>
+                      更新于 {entry.data.updatedAt.toLocaleDateString("zh-CN")}
+                    </time>
+                  )
+                }
+              </div>
+            </header>
+
+            <!-- 页面内容 -->
+            <article class="prose prose-lg dark:prose-invert max-w-none">
+              <div class="markdown-content">
+                <Content />
+              </div>
+            </article>
+          </div>
+        </LiquidGlass>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

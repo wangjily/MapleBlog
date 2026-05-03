@@ -1,0 +1,110 @@
+---
+import BaseLayout from "@components/base/BaseLayout.astro";
+import Pagination from "@components/common/Pagination.astro";
+import PageHeader from "@components/common/PageHeader.astro";
+import LiquidGlass from "@components/common/LiquidGlassLess.astro";
+import NotesListCard from "@components/notes/NotesListCard.astro";
+import type { NotesEntry } from "@/types";
+
+interface Props {
+  entryIndex: NotesEntry;
+  entries: NotesEntry[];
+  tags: string[];
+  pageIndex: number;
+  pageCount: number;
+  allNotesCount?: number;
+  basePath?: string; // 自定义分页基础路径
+}
+
+const {
+  entryIndex,
+  entries,
+  tags,
+  pageIndex,
+  pageCount,
+  allNotesCount,
+  basePath,
+} = Astro.props;
+
+const { title, description } = entryIndex
+  ? entryIndex.data
+  : {
+      title: "站点动态",
+      description: "最新的站点动态和更新",
+    };
+---
+
+<BaseLayout title={title} description={description}>
+  <div class="container px-3 lg:px-8">
+    <PageHeader
+      title={title}
+      description={description}
+      articleCount={allNotesCount}
+    />
+    <section class="">
+      <div class="flex" style="padding:0px;">
+        <div class="row px-0 mx-0 w-full grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <!-- notes posts -->
+          <div class="lg:col-span-3 p-0">
+            {
+              entries.length > 0 ? (
+                entries.map((entry, index) => (
+                  <div class="mb-5" style={`animation-delay: ${index * 200}ms`}>
+                    <NotesListCard entry={entry} />
+                  </div>
+                ))
+              ) : (
+                <div class="mb-5">
+                  <LiquidGlass
+                    heavy
+                    containerClass="p-4"
+                    animation="fadeRight"
+                  >
+                    <p class="text-center">暂无动态内容</p>
+                  </LiquidGlass>
+                </div>
+              )
+            }
+            <Pagination
+              collection="notes"
+              pageIndex={pageIndex}
+              pageCount={pageCount}
+              basePath={basePath}
+            />
+          </div>
+          <!-- sidebar -->
+          <div
+            class="lg:col-span-1 lg:flex max-h-static_sidemenu sticky p-0 lg:pl-5 top-[4rem]"
+          >
+            <LiquidGlass
+              heavy
+              wrapperClass="dock !p-6"
+              containerClass="py-5 w-full"
+              animation="fadeLeft"
+            >
+              <div class="sidebar-widget mb-8">
+                <h4 class="mb-3">标签</h4>
+                <div class="flex flex-wrap gap-2">
+                  {
+                    tags.map((tag) => (
+                      <a
+                        href={`/notes/tags/${tag}`}
+                        class="text-sm md:text-base px-2 py-1 transition-all border-2 border-indigo-500/0 hover:border-slate-500 hover:rounded-lg hover:bg-white/40"
+                      >
+                        {tag}
+                      </a>
+                    ))
+                  }
+                </div>
+              </div>
+              <div class="sidebar-widget">
+                <h4 class="mb-3">统计</h4>
+                <p>共 {allNotesCount || 0} 条动态</p>
+              </div>
+            </LiquidGlass>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

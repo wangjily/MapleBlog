@@ -1,0 +1,180 @@
+// 标准毛玻璃效果
+// - 使用较强的模糊效果 (backdrop-blur-lg)
+// - 30%的背景透明度
+// - 有边框和阴影
+.glass {
+  @apply bg-white/50 dark:bg-darkmode-bg-t/50;
+  @apply bg-opacity-15 dark:bg-opacity-15;
+  @apply backdrop-blur-xl;
+  @apply bg-clip-padding backdrop-filter backdrop-saturate-100 backdrop-contrast-100;
+  @apply border border-[rgba(255,255,255,0.5)] dark:border-[rgba(255,255,255,0.3)];
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.25);
+  --tw-backdrop-blur: blur(14px);
+}
+
+.glass.dock {
+  border-radius: 1rem;
+  padding: 1rem;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+}
+
+.glass.dock,
+.glass.dock>div {
+  border-radius: 1rem;
+}
+
+.glass.dock:hover {
+  // 使用transform代替padding变化避免推挤
+  // padding: 0.8rem;
+  transform: scale(0.99);
+}
+
+
+.glass.dock>img {
+  width: 75px;
+  padding: 0;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+}
+
+.glass.dock>img:hover {
+  transform-origin: center center;
+}
+
+.glass.button {
+  padding: 0.2rem 1.5rem;
+  border-radius: 2rem;
+  // 使用transform避免hover时推挤其他元素
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+}
+
+.glass.button,
+.glass.button>div {
+  border-radius: 2rem;
+}
+
+.glass.button:hover {
+  // 移除padding变化，使用transform代替
+  // padding: 0.6rem 1.6rem;
+  transform: scale(1.1);
+}
+
+.glass.button:hover>div {
+  border-radius: 2rem;
+}
+
+.glass.button span {
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+}
+
+.glass.button:hover span {
+  // 调整scale值以配合外层的scale(1.05)
+  transform: scale(0.9);
+}
+
+// :global(.dark) .glass {
+//   background: rgba(31,41,55,0.25) !important;
+//   border: 1px solid rgba(255,255,255,0.15) !important;
+// }
+
+// 透明毛玻璃效果
+// - 使用普通模糊效果 (backdrop-blur)
+// - 20%的背景透明度
+// - 有边框和阴影
+.glass-t {
+  @apply bg-white/15 dark:bg-darkmode-bg-t/15;
+  @apply bg-opacity-10 dark:bg-opacity-10;
+  @apply backdrop-blur-md;
+  @apply bg-clip-padding backdrop-filter backdrop-saturate-100 backdrop-contrast-100;
+  @apply border border-[rgba(255,255,255,0.5)] dark:border-[rgba(255,255,255,0.3)];
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.25);
+  --tw-backdrop-blur: blur(4px);
+}
+
+.glass-l {
+  @apply bg-bg-t dark:bg-darkmode-bg-t;
+  @apply bg-opacity-0 dark:bg-opacity-10;
+  // @apply backdrop-blur;
+  @apply bg-clip-padding backdrop-filter backdrop-saturate-100 backdrop-contrast-100;
+  @apply border border-[rgba(255,255,255,0.5)] dark:border-[rgba(255,255,255,0.3)];
+  box-shadow: 2px 2px 4px rgb(83 83 83 / 25%);
+  --tw-backdrop-blur: blur(1px);
+}
+
+// 无边框透明毛玻璃效果
+// - 使用普通模糊效果 (backdrop-blur)
+// - 20%的背景透明度
+// - 无边框和阴影
+.glass-t-borderless {
+  @apply bg-bg-t dark:bg-darkmode-bg-t;
+  @apply bg-opacity-20 dark:bg-opacity-20;
+  @apply backdrop-blur;
+  @apply bg-clip-padding backdrop-filter backdrop-saturate-100 backdrop-contrast-100;
+}
+
+
+// Gradient
+.gradient {
+  @apply from-transparent via-transparent to-transparent;
+  // @apply from-txt-s via-transparent to-transparent;
+  // @apply dark:from-darkmode-txt-s dark:via-transparent dark:to-transparent;
+}
+
+
+/* From Uiverse.io by Spacious74 */
+.flex-new {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.outer-cont {
+  height: 100%;
+  width: 100%;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.2);
+  // border-radius: 0.8rem;
+  @apply rounded-full;
+  color: #fff;
+  transition: all 0.1s ease;
+  box-shadow: inset 1px 1px 1px 0px rgba(255,255,255,0.77),inset -1px -1px 1px 0px rgba(255,255,255,0.33);
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+  background-color: rgb(255 255 255 / 30%);
+}
+
+.outer-cont::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  border-radius: 12px;
+  filter: blur(0);
+  z-index: -1;
+  box-shadow: none;
+  transition: all 0.1s ease;
+}
+
+.outer-cont:hover::before {
+  filter: blur(15px);
+}
+
+.outer-cont:active::before {
+  filter: blur(5px);
+  transform: translateY(1px);
+}
+
+.outer-cont:active {
+  box-shadow:
+    inset 0px 0px 5px rgba(255,255,255,0.2),
+    inset 0px 35px 30px rgba(255,255,255,0),
+    0px 5px 15px rgba(0,0,0,0.1),
+    0px 2px 5px rgba(0,0,0,0.05);
+  margin-top: 3px;
+}

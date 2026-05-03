@@ -1,0 +1,299 @@
+// Twikoo 自定义样式覆盖
+// 这些样式将在 Twikoo 初始化完成后动态注入
+.dark {
+  .twikoo {
+
+    // 输入框组样式
+    .el-input-group__append,
+    .el-input-group__prepend {
+      @apply bg-amber-500 !important;
+      @apply border border-yellow-100/40 !important;
+      @apply text-white font-bold !important;
+      transition: all 0.3s ease !important;
+      @apply rounded-l-[20px] !important;
+
+      &:hover {
+        @apply bg-yellow-400 !important;
+        @apply border border-yellow-100/70 !important;
+        @apply text-gray-50 !important;
+      }
+    }
+
+
+    .tk-extras {
+      @apply text-gray-400 !important;
+    }
+
+    .tk-tag-green {
+      background-color: rgba(86, 102, 88, 0.2);
+      border: 1px solid #38f942db;
+      border-radius: 2px;
+      color: #38f942db;
+    }
+
+    // 评论输入框样式
+    .el-textarea__inner {
+      @apply bg-black/30 !important;
+      @apply border border-yellow-100/40 !important;
+      @apply rounded-[18px] !important;
+      color: inherit !important;
+      transition: all 0.3s ease !important;
+
+      &:focus {
+        @apply border border-yellow-100/70 !important;
+        @apply shadow-md !important;
+      }
+
+      &::placeholder {
+        @apply text-gray-500 !important;
+      }
+    }
+
+    // 输入框样式
+    .el-input__inner {
+      @apply bg-black/30 !important;
+      @apply border border-yellow-100/40 !important;
+      @apply rounded-r-[20px] !important;
+      line-height: 45px !important;
+      color: inherit !important;
+
+      &:focus {
+        @apply border border-yellow-100/70 !important;
+        @apply shadow-sm !important;
+      }
+
+      &::placeholder {
+        @apply text-gray-500 !important;
+      }
+    }
+
+    .el-button--primary {
+      @apply bg-amber-500 border border-yellow-100/40 !important;
+      @apply text-white !important;
+      transition: all 0.3s ease !important;
+
+      &:hover {
+        @apply bg-yellow-400 border border-yellow-100/70 !important;
+        transform: translateY(-1px) !important;
+      }
+
+      &:active {
+        transform: translateY(0) !important;
+      }
+    }
+
+    // 次要按钮样式
+    .el-button--default {
+      @apply bg-amber-100/50 border border-yellow-100/40 !important;
+      @apply text-white !important;
+      color: inherit !important;
+
+      &:hover {
+        @apply bg-yellow-300/70 border border-yellow-100/70 !important;
+        transform: translateY(-1px) !important;
+      }
+    }
+
+    strong {
+      @apply text-amber-500 !important;
+    }
+
+    svg {
+      @apply text-amber-500 !important;
+    }
+
+    .tk-meta strong,
+    .tk-action svg {
+      @apply text-amber-500 !important;
+    }
+
+    strong,
+    svg,
+    .tk-actions a {
+      @apply text-slate-100 !important;
+    }
+  }
+
+  .tk-icon.__comments {
+    @apply text-amber-500 !important;
+  }
+
+}
+
+.twikoo {
+
+  // 输入框组样式
+  .el-input-group__append,
+  .el-input-group__prepend {
+    @apply bg-gray-100 !important;
+    @apply border border-gray-300 !important;
+    @apply text-gray-900 font-bold !important;
+    transition: all 0.3s ease !important;
+    @apply rounded-l-[20px] !important;
+
+    &:hover {
+      @apply bg-gray-200 !important;
+      @apply border border-gray-400 !important;
+      @apply text-gray-700 !important;
+    }
+  }
+
+  .tk-meta-input {
+    @apply pb-4 !important;
+  }
+
+  .tk-tag-green {
+    background-color: rgba(215, 255, 221, 0.417);
+    border: 1px solid #00c40adb;
+    border-radius: 2px;
+    color: #00c40adb;
+  }
+
+  .tk-extras {
+    @apply text-gray-600 !important;
+  }
+
+  .tk-comments-container {
+    min-height: 8rem !important;
+  }
+
+  // 评论输入框样式
+  .el-textarea__inner {
+    @apply bg-white/30 !important;
+    @apply border border-gray-300 !important;
+    @apply rounded-l-[20px] !important;
+    color: inherit !important;
+    transition: all 0.3s ease !important;
+
+    &:focus {
+      @apply border border-gray-400 !important;
+      @apply shadow-md !important;
+    }
+
+    &::placeholder {
+      @apply text-gray-400;
+    }
+  }
+
+  // 输入框样式
+  .el-input__inner {
+    @apply bg-white/30 !important;
+    @apply border border-gray-300 !important;
+    @apply rounded-r-[20px] !important;
+    line-height: 45px !important;
+    color: inherit !important;
+
+    &:focus {
+      @apply border border-gray-400 !important;
+      @apply shadow-sm !important;
+    }
+
+    &::placeholder {
+      color: rgba(53, 53, 53, 0.5) !important;
+    }
+  }
+
+  // 主要按钮样式
+  .el-button--primary {
+    @apply bg-slate-800 border border-slate-600 !important;
+    @apply text-white !important;
+    @apply rounded-[18px] !important;
+    transition: all 0.3s ease !important;
+
+    &:hover {
+      @apply bg-gray-600 border border-gray-600;
+      transform: translateY(-1px) !important;
+    }
+
+    &:active {
+      transform: translateY(0) !important;
+    }
+  }
+
+  // 次要按钮样式
+  .el-button--default {
+    @apply bg-gray-500 border border-gray-500 !important;
+    @apply text-white !important;
+    // color: inherit !important;
+
+    &:hover {
+      @apply bg-gray-600 border border-gray-600 !important;
+      transform: translateY(-1px) !important;
+    }
+  }
+
+  .el-button--mini,
+  .el-button--small {
+    @apply rounded-[18px] !important;
+  }
+
+  // 评论项样式
+  .tk-item {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    @apply rounded-[18px] !important;
+    margin-bottom: 1rem !important;
+    transition: all 0.3s ease !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.05) !important;
+      border-color: rgba(255, 255, 255, 0.15) !important;
+    }
+  }
+
+  // 评论头像
+  .tk-avatar {
+    border-radius: 50% !important;
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 4px 8px #16161668;
+  }
+
+  // 评论内容
+  .tk-content {
+    color: inherit !important;
+    line-height: 1.6 !important;
+
+    p {
+      @apply indent-0 !important;
+    }
+  }
+
+  // 评论时间和操作按钮
+  .tk-meta {
+    color: rgba(255, 255, 255, 0.7) !important;
+
+    .tk-action {
+      color: rgba(255, 255, 255, 0.6) !important;
+      transition: color 0.3s ease !important;
+
+      &:hover {
+        color: rgba(251, 146, 60, 0.8) !important;
+      }
+    }
+  }
+
+  // 回复按钮
+  .tk-reply {
+    color: rgba(251, 146, 60, 0.8) !important;
+
+    &:hover {
+      color: rgba(251, 146, 60, 1) !important;
+    }
+  }
+
+  .OwO.OwO-open .OwO-body {
+    z-index: 1000 !important;
+  }
+
+  .tk-meta strong,
+  .tk-action svg {
+    @apply text-cyan-700 !important;
+  }
+
+  strong,
+  svg,
+  .tk-actions a {
+    @apply text-slate-900 !important;
+  }
+
+}

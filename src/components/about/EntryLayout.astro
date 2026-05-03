@@ -1,0 +1,190 @@
+---
+import BaseLayout from "@components/base/BaseLayout.astro";
+import { markdownify } from "@lib/textConverter";
+import { Image } from "astro:assets";
+import type { AboutEntry } from "@/types";
+import { render } from "astro:content";
+import LiquidGlassLess from "@components/common/LiquidGlassLess.astro";
+import Social from "@components/common/Social.astro";
+import Comment from "@components/base/Comment.astro";
+import { getEntry } from "astro:content";
+import { SITE_INFO } from "@lib/config";
+
+interface Props {
+  entry: AboutEntry;
+}
+
+const { entry } = Astro.props;
+const { title, description, image, imageAlt } = entry.data;
+const { Content } = await render(entry);
+
+const socialEntry = await getEntry("social", "-index");
+const socialLinks = socialEntry?.data.platforms;
+
+const startDate = new Date(SITE_INFO.START_DATE);
+const today = new Date();
+const daysRunning = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+---
+
+<BaseLayout title={title} description={description} image={image?.src}>
+  <!-- Hero Section -->
+  <section class="container px-3 lg:px-8 pt-8 pb-6">
+    <div class="relative text-center">
+      <div class="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+        <svg class="w-64 h-64 opacity-[0.06]" viewBox="0 0 100 100" fill="currentColor">
+          <path d="M50 5 C30 20 10 25 8 40 C6 55 20 65 30 60 C35 58 38 52 40 45 C42 38 50 35 50 20 C50 35 58 38 60 45 C62 52 65 58 70 60 C80 65 94 55 92 40 C90 25 70 20 50 5Z" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="relative">
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-3 tracking-tight">
+          <span class="bg-gradient-to-r from-orange-500 via-red-500 to-amber-500 bg-clip-text text-transparent">关于我</span>
+        </h1>
+        <p class="text-txt-light dark:text-darkmode-txt-light text-lg md:text-xl max-w-xl mx-auto">
+          {description || "记录生活，分享技术，做一个有趣的独立博客"}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 统计数据 -->
+  <section class="container px-3 lg:px-8 pb-6">
+    <div class="grid grid-cols-3 gap-3 lg:gap-4 max-w-2xl mx-auto">
+      <div class="text-center p-4 rounded-2xl bg-white/30 dark:bg-black/30 border border-white/20 dark:border-white/10 backdrop-blur-md">
+        <div class="text-2xl lg:text-3xl font-bold text-orange-500" id="stat-articles">-</div>
+        <div class="text-xs text-txt-light dark:text-darkmode-txt-light mt-1">文章</div>
+      </div>
+      <div class="text-center p-4 rounded-2xl bg-white/30 dark:bg-black/30 border border-white/20 dark:border-white/10 backdrop-blur-md">
+        <div class="text-2xl lg:text-3xl font-bold text-orange-500">{daysRunning}</div>
+        <div class="text-xs text-txt-light dark:text-darkmode-txt-light mt-1">天</div>
+      </div>
+      <div class="text-center p-4 rounded-2xl bg-white/30 dark:bg-black/30 border border-white/20 dark:border-white/10 backdrop-blur-md">
+        <div class="text-2xl lg:text-3xl font-bold text-orange-500">∞</div>
+        <div class="text-xs text-txt-light dark:text-darkmode-txt-light mt-1">访客</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 博主 + 站点 双栏卡片 -->
+  <section class="container px-3 lg:px-8 pb-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 max-w-4xl mx-auto">
+      <!-- 关于博主 -->
+      <LiquidGlassLess heavy textClass="p-5 lg:p-6 rounded-[28px]">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-10 h-10 rounded-full bg-orange-500/15 flex items-center justify-center">
+            <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+          </div>
+          <h2 class="text-lg font-bold text-txt-p dark:text-darkmode-txt-p">关于博主</h2>
+        </div>
+
+        {image && (
+          <div class="flex justify-center mb-5">
+            <div class="relative group">
+              <div class="absolute -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-amber-400 rounded-full blur opacity-30 group-hover:opacity-50 transition-all duration-500"></div>
+              <Image
+                class="relative w-24 h-24 lg:w-28 lg:h-28 rounded-full border-2 border-white/30 dark:border-gray-700/30 shadow-xl object-cover"
+                src={image}
+                alt={imageAlt || "博主头像"}
+                width={112}
+                height={112}
+                loading="eager"
+              />
+            </div>
+          </div>
+        )}
+
+        <div class="space-y-3 text-txt-light dark:text-darkmode-txt-light text-sm leading-relaxed">
+         
+          <p>🎯 博客主要记录学习过程中的踩坑心得、工具推荐和日常碎碎念。</p>
+          <p>💡 相信代码改变世界，也相信文字可以传递温度。</p>
+        </div>
+
+        <div class="mt-5 pt-4 border-t border-white/10 dark:border-white/5">
+          <Social links={socialLinks} />
+        </div>
+      </LiquidGlassLess>
+
+      <!-- 关于本站 -->
+      <LiquidGlassLess heavy textClass="p-5 lg:p-6 rounded-[28px]">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-10 h-10 rounded-full bg-orange-500/15 flex items-center justify-center">
+            <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <h2 class="text-lg font-bold text-txt-p dark:text-darkmode-txt-p">关于本站</h2>
+        </div>
+
+        <div class="space-y-3 text-txt-light dark:text-darkmode-txt-light text-sm leading-relaxed">
+          <p>🌿 这是一个用 <strong class="text-orange-500">Astro</strong> 构建的博客</p>
+          <p>📝 记录学习和工作中遇到的问题、解决方案，以及一些随想。</p>
+         
+        </div>
+
+        <div class="mt-5 flex flex-wrap gap-2">
+          {["Astro", "Tailwind CSS", "React", "TypeScript", "Liquid Glass"].map((tag) => (
+            <span class="px-3 py-1 text-xs rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/20">
+              {tag}
+            </span>
+          ))}
+        </div>
+      </LiquidGlassLess>
+    </div>
+  </section>
+
+  <!-- 博客正文 -->
+  <section class="container px-3 lg:px-8 pb-6">
+    <LiquidGlassLess heavy textClass="p-5 lg:p-8 rounded-[28px]">
+      <div class="markdown-content">
+        <Content />
+      </div>
+    </LiquidGlassLess>
+  </section>
+
+  <!-- 留言板模块 -->
+  <section class="container px-3 lg:px-8 pb-8">
+    <LiquidGlassLess heavy textClass="p-5 lg:p-8 rounded-[28px]">
+      <!-- 标题 -->
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-10 h-10 rounded-full bg-orange-500/15 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+        </div>
+        <h2 class="text-lg font-bold text-txt-p dark:text-darkmode-txt-p">给我留言</h2>
+      </div>
+
+      <!-- 提示语卡片 -->
+      <div class="mb-6 p-4 rounded-2xl bg-white/30 dark:bg-black/30 border border-white/20 dark:border-white/10 backdrop-blur-md">
+        <p class="text-sm text-txt-light dark:text-darkmode-txt-light leading-relaxed">
+          💬 欢迎在这里留言！可以聊聊你的想法、提个问题，或者只是打个招呼～
+          <br/>
+          <span class="text-xs opacity-60">文明发言，互相尊重，每一条留言我都会认真看的。</span>
+        </p>
+      </div>
+
+      <!-- 评论区 -->
+      <div class="twikoo-wrapper">
+        <Comment />
+      </div>
+    </LiquidGlassLess>
+  </section>
+</BaseLayout>
+
+<script>
+  document.addEventListener("astro:page-load", async () => {
+    const statEl = document.getElementById("stat-articles");
+    if (statEl) {
+      try {
+        const res = await fetch("/api/posts");
+        if (res.ok) {
+          const data = await res.json();
+          statEl.textContent = String(data.total ?? 0);
+        }
+      } catch {
+        statEl.textContent = "—";
+      }
+    }
+  });
+</script>

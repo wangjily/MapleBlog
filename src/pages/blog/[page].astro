@@ -1,0 +1,42 @@
+---
+import type { GetStaticPaths } from "astro";
+import CollectionLayout from "@components/blog/CollectionLayout.astro";
+import { getTaxa, getTaxaWithCount } from "@lib/taxonomyParser";
+import { getEntries, getIndex } from "@lib/contentParser";
+import { sortByDate } from "@lib/sortFunctions";
+import { getPageSize } from "@lib/config";
+import type { BlogEntry } from "@/types";
+
+const entriesPerPage = getPageSize('blog');
+export async function getStaticPaths({ paginate }: any) {
+  const entries = await getEntries("blog", sortByDate);
+  return paginate(entries,{pageSize:4});
+}
+
+const { page } = Astro.params;
+console.log("分类页面page:",page);
+const currentPageIndex = page && !isNaN(Number(page)) ? Number(page) : 1;
+const entryIndex = (await getIndex("blog")) as BlogEntry;
+const entries = (await getEntries("blog", sortByDate)) as BlogEntry[];
+const allBlogCount = entries.length;
+
+// const allCategories = await getTaxaMultiset("blog", "categories");
+const categoriesWithCount = await getTaxaWithCount("blog", "categories");
+const tags = await getTaxa("blog", "tags");
+
+const indexOfLastEntry = currentPageIndex * entriesPerPage;
+const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
+const currentEntries = entries.slice(indexOfFirstEntry, indexOfLastEntry);
+
+const pageCount: number = Math.ceil(entries.length / entriesPerPage);
+---
+
+<CollectionLayout
+  entryIndex={entryIndex}
+  entries={currentEntries}
+  categories={categoriesWithCount}
+  tags={tags}
+  pageIndex={currentPageIndex}
+  pageCount={pageCount}
+  allBlogCount={allBlogCount}
+/>

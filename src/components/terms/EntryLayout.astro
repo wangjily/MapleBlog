@@ -1,0 +1,26 @@
+---
+import BaseLayout from "@components/base/BaseLayout.astro";
+import PageHeader from "@components/common/PageHeader.astro";
+import type { TermsEntry } from "@/types";
+import { render } from "astro:content";
+import LiquidGlassLess from "@components/common/LiquidGlassLess.astro";
+
+interface Props {
+  entry: TermsEntry;
+}
+
+const { entry } = Astro.props;
+const { title, description } = entry.data;
+const { Content } = await render(entry);
+---
+
+<BaseLayout title={title} description={description}>
+  <PageHeader title={title} />
+  <div class="container pb-4 px-3 lg:px-8">
+    <div class="row justify-center markdown-content">
+      <LiquidGlassLess heavy textClass="p-3 lg:p-8" >
+        <Content />
+      </LiquidGlassLess>
+    </div>
+  </div>
+</BaseLayout>

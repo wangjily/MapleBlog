@@ -1,0 +1,132 @@
+---
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import LiquidGlass from "./LiquidGlassLess.astro";
+
+type Props = {
+  collection?: string;
+  pageIndex?: number;
+  pageCount?: number;
+  pageIDs?: string[];
+  basePath?: string; // 自定义基础路径，用于嵌套分页
+};
+
+const {
+  collection,
+  pageIndex = 1,
+  pageCount = 1,
+  pageIDs,
+  basePath,
+} = Astro.props;
+
+let pageList: number[] = [];
+for (let i = 1; i <= pageCount; i++) {
+  pageList.push(i);
+}
+
+// 生成分页链接的函数
+const getPageLink = (page: number): string => {
+  if (basePath) {
+    // 使用自定义基础路径（用于嵌套分页）
+    return `${basePath}/${page}`;
+  } else if (pageIDs && pageIDs.length > 0) {
+    // 使用 pageIDs 模式
+    const pageID = pageIDs[page - 1];
+    return pageID ? `/${collection}/${pageID}` : `/${collection}`;
+  } else {
+    // 使用数字分页模式
+    if (page === 1) {
+      return `/${collection}`;
+    } else {
+      return `/${collection}/${page}`;
+    }
+  }
+};
+
+let prevPage: string | null;
+let nextPage: string | null;
+
+// 使用统一的链接生成函数
+if (pageIndex > 1) {
+  prevPage = getPageLink(pageIndex - 1);
+} else {
+  prevPage = null;
+}
+
+if (pageIndex < pageCount) {
+  nextPage = getPageLink(pageIndex + 1);
+} else {
+  nextPage = null;
+}
+---
+
+{
+  pageCount >= 1 && (
+    <nav class="flex items-center justify-center pb-2">
+      <LiquidGlass containerClass="rounded-md p-2 mx-2 space-x-2" >
+        {/* previous */}
+        {prevPage ? (
+          <a
+            href={prevPage}
+            class="col rounded px-2 py-1.5 text-txt-p dark:text-darkmode-txt-p"
+            aria-label="Previous"
+          >
+            <FaArrowLeft className="inline-block" />
+          </a>
+        ) : (
+          <span
+            class="col rounded px-2 py-1.5 text-txt-light dark:text-darkmode-txt-light"
+            aria-label="Previous"
+          >
+            <FaArrowLeft className="inline-block" />
+          </span>
+        )}
+        {/* page index */}
+        {pageIDs ? (
+          <div
+            aria-current="page"
+            class="col rounded px-4 py-2 text-txt-p  dark:text-darkmode-txt-p"
+          >
+            {pageIndex + 1}
+          </div>
+        ) : (
+          pageList.map((pagination) =>
+            pagination === pageIndex ? (
+              <span
+                aria-current="page"
+                class="col rounded px-4 py-2 font-semibold text-txt-p dark:text-darkmode-txt-p border border-txt-light dark:border-darkmode-txt-light"
+              >
+                {pagination}
+              </span>
+            ) : (
+              <a
+                href={getPageLink(pagination)}
+                aria-current="page"
+                class="col rounded px-4 py-2 font-semibold text-txt-p dark:text-darkmode-txt-p"
+              >
+                {pagination}
+              </a>
+            ),
+          )
+        )}
+
+        {/* next page */}
+        {nextPage ? (
+          <a
+            href={nextPage}
+            class="col rounded px-2 py-1.5 text-txt-p dark:text-darkmode-txt-p"
+            aria-label="Next"
+          >
+            <FaArrowRight className="inline-block" />
+          </a>
+        ) : (
+          <span
+            class="col rounded px-2 py-1.5 text-txt-light dark:text-darkmode-txt-light"
+            aria-label="Next"
+          >
+            <FaArrowRight className="inline-block" />
+          </span>
+        )}
+      </LiquidGlass>
+    </nav>
+  )
+}

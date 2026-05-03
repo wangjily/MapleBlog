@@ -1,0 +1,392 @@
+---
+import BaseLayout from "@components/base/BaseLayout.astro";
+import LiquidGlassLess from "@components/common/LiquidGlassLess.astro";
+---
+
+<BaseLayout
+  title="Liquid Glass 效果演示"
+  description="展示LiquidGlassLess组件的各种玻璃质感效果"
+>
+  <!-- 滚动背景容器 -->
+  <div class="liquid-glass-demo-container">
+    <!-- 动态背景 -->
+    <div class="animated-background"></div>
+
+    <!-- 主要内容区域 -->
+    <div class="demo-content">
+      <h3 class="demo-title">Liquid Glass 效果演示</h3>
+
+      <!-- 效果变体展示 -->
+      <div class="max-w-[1200px]">
+        <div class="flex flex-row justify-between gap-10">
+          <!-- 轻量效果 -->
+          <LiquidGlassLess containerClass=" w-full" wrapperClass="button h-24">
+            <div class="variant-content">
+              <h3>通透效果</h3>
+            </div>
+          </LiquidGlassLess>
+
+          <!-- 重量效果 -->
+          <LiquidGlassLess
+            containerClass=" w-full"
+            wrapperClass="button h-24"
+            heavy={true}
+          >
+            <div class="variant-content">
+              <h3>厚重效果</h3>
+            </div>
+          </LiquidGlassLess>
+
+          <!-- 扁平化降级 -->
+          <LiquidGlassLess
+            containerClass=" w-full"
+            wrapperClass="button h-24"
+          >
+            <div class="variant-content">
+              <h3>扁平化降级</h3>
+            </div>
+          </LiquidGlassLess>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  html::before {
+    filter: blur(0);
+    opacity: 1;
+    /* background-image: url(https://9to5mac.com/wp-content/uploads/sites/6/2025/06/macOS_26_Light.jpg?quality=82&strip=all&w=1024); */
+    background-image: url(https://wallpaperswide.com/download/apple_abstract-wallpaper-2560x768.jpg);
+  }
+  .liquid-glass-demo-container {
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  /* .animated-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: linear-gradient(
+      45deg,
+      #667eea 0%,
+      #764ba2 25%,
+      #f093fb 50%,
+      #f5576c 75%,
+      #4facfe 100%
+    );
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+  } */
+
+  @keyframes gradientShift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .demo-content {
+    max-width: 1200px;
+    width: 100%;
+    text-align: center;
+    z-index: 1;
+  }
+
+  .demo-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+
+    background: linear-gradient(
+      178deg,
+      #ffffff 10%,
+      #e8e8e8 45%,
+      #3e3e3e 45%,
+      #e8e8e8 55%,
+      #ffffff 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 3rem;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    letter-spacing: -0.02em;
+  }
+
+  .demo-subtitle {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 3rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .main-demo-section {
+    margin-bottom: 4rem;
+  }
+
+  .demo-button-container {
+    display: inline-block;
+  }
+
+  .demo-main-button {
+    padding: 0;
+    border-radius: 2rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .demo-main-button:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  }
+
+  .glass-demo-btn {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem 3rem;
+    background: none;
+    border: none;
+    /* color: white; */
+    font-size: 1.25rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-icon {
+    font-size: 1.5rem;
+    transition: transform 0.3s ease;
+  }
+
+  .btn-arrow {
+    font-size: 1.5rem;
+    transition: transform 0.3s ease;
+  }
+
+  .glass-demo-btn:hover .btn-icon {
+    transform: rotate(180deg);
+  }
+
+  .glass-demo-btn:hover .btn-arrow {
+    transform: translateX(8px);
+  }
+
+  .variants-section {
+    margin-bottom: 4rem;
+  }
+
+  .variants-title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    text-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+  }
+
+  .variants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .variant-container {
+    height: 100%;
+  }
+
+  .variant-button {
+    padding: 2rem;
+    border-radius: 1.5rem;
+    height: 100%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+
+  .variant-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .variant-content h3 {
+    padding: 1.5rem 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #000a;
+    margin-bottom: 0.5rem;
+  }
+
+  .variant-content p {
+    /* color: rgba(255, 255, 255, 0.8); */
+    font-size: 1rem;
+  }
+
+  .interactive-section {
+    margin-top: 4rem;
+  }
+
+  .section-title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    /* color: white; */
+    margin-bottom: 2rem;
+    text-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+  }
+
+  .interactive-buttons {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .interactive-btn {
+    padding: 1.5rem 2rem;
+    border-radius: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .interaction-demo {
+    background: none;
+    border: none;
+    /* color: white; */
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.1);
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+  }
+
+  .hover-blur:hover {
+    backdrop-filter: blur(20px);
+  }
+
+  /* 响应式设计 */
+  @media (max-width: 768px) {
+    .demo-title {
+      font-size: 2.5rem;
+    }
+
+    .variants-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .interactive-buttons {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .glass-demo-btn {
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+    }
+  }
+</style>
+
+<script>
+  // 添加交互效果
+  document.addEventListener("DOMContentLoaded", () => {
+    const interactionButtons = document.querySelectorAll(".interaction-demo");
+
+    interactionButtons.forEach((button) => {
+      button.addEventListener("click", (e) => {
+        const effect = e.target.dataset.effect;
+
+        // 创建点击反馈效果
+        const ripple = document.createElement("div");
+        ripple.style.cssText = `
+          position: absolute;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.6);
+          transform: scale(0);
+          animation: ripple 0.6s linear;
+          pointer-events: none;
+        `;
+
+        const rect = button.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        ripple.style.width = ripple.style.height = size + "px";
+        ripple.style.left = e.clientX - rect.left - size / 2 + "px";
+        ripple.style.top = e.clientY - rect.top - size / 2 + "px";
+
+        button.style.position = "relative";
+        button.appendChild(ripple);
+
+        setTimeout(() => {
+          ripple.remove();
+        }, 600);
+      });
+    });
+
+    // 主按钮点击效果
+    const mainButton = document.querySelector(".glass-demo-btn");
+    if (mainButton) {
+      mainButton.addEventListener("click", () => {
+        // 创建粒子效果
+        for (let i = 0; i < 12; i++) {
+          const particle = document.createElement("div");
+          particle.style.cssText = `
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1000;
+          `;
+
+          const rect = mainButton.getBoundingClientRect();
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 2;
+
+          particle.style.left = centerX + "px";
+          particle.style.top = centerY + "px";
+
+          document.body.appendChild(particle);
+
+          const angle = (i / 12) * Math.PI * 2;
+          const velocity = 100 + Math.random() * 50;
+          const vx = Math.cos(angle) * velocity;
+          const vy = Math.sin(angle) * velocity;
+
+          particle.animate(
+            [
+              { transform: "translate(0, 0) scale(1)", opacity: 1 },
+              { transform: `translate(${vx}px, ${vy}px) scale(0)`, opacity: 0 },
+            ],
+            {
+              duration: 1000,
+              easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+            },
+          ).onfinish = () => particle.remove();
+        }
+      });
+    }
+  });
+</script>
+
+<style is:global>
+  @keyframes ripple {
+    to {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+</style>

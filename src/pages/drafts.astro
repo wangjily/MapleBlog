@@ -1,0 +1,51 @@
+---
+import BaseLayout from "@components/base/BaseLayout.astro";
+import BlogListCard from "@components/blog/BlogListCard.astro";
+import { getCollection } from "astro:content";
+import type { BlogEntry } from "@/types";
+import { isDevelopment } from "@lib/env";
+
+// 仅在开发环境显示此页面
+if (!isDevelopment()) {
+  return Astro.redirect("/404");
+}
+
+// 获取所有草稿文章
+const draftPosts = (await getCollection("blog", ({ data }) => {
+  return data.draft === true;
+})) as BlogEntry[];
+
+// 按创建时间排序
+const sortedDrafts = draftPosts.sort((a, b) => {
+  const dateA = new Date(a.data.createdAt || 0);
+  const dateB = new Date(b.data.createdAt || 0);
+  return dateB.getTime() - dateA.getTime();
+});
+---
+
+<BaseLayout title="草稿文章" description="开发环境草稿预览">
+  <div class="container px-3 lg:px-8">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-txt-p dark:text-darkmode-txt-p mb-4">
+        草稿文章 ({sortedDrafts.length})
+      </h1>
+      <p class="text-txt-light dark:text-darkmode-txt-light">
+        仅在开发环境可见的草稿文章列表
+      </p>
+    </div>
+    
+    <div class="grid gap-6">
+      {sortedDrafts.map((entry) => (
+        <BlogListCard entry={entry} />
+      ))}
+    </div>
+    
+    {sortedDrafts.length === 0 && (
+      <div class="text-center py-12">
+        <p class="text-txt-light dark:text-darkmode-txt-light">
+          暂无草稿文章
+        </p>
+      </div>
+    )}
+  </div>
+</BaseLayout>

@@ -1,0 +1,491 @@
+---
+import { getEntries } from "@lib/contentParser";
+
+
+
+// 定义类型
+interface DayData {
+  date: string;
+  count: number;
+  level: number;
+  dateSimple: string;
+}
+
+interface MonthLabel {
+  name: string;
+  position: number;
+}
+
+// 获取所有文章（包括blog和notes）
+const blogPosts = await getEntries("blog");
+const notesPosts = await getEntries("notes");
+
+const allPosts = [...blogPosts, ...notesPosts];
+
+// 生成当前年度的日期数据（从1月1日开始）
+function generateCalendarData(): DayData[][] {
+  const today = new Date();
+  const currentYear = today.getFullYear();
+
+  const weeks: DayData[][] = [];
+  // 从当前年的1月1日开始
+  const startDate = new Date(currentYear, 0, 1);
+  const currentDate = new Date(startDate);
+
+  // 找到1月1日所在周的周一
+  const startDay = currentDate.getDay();
+  const daysToSubtract = startDay === 0 ? 6 : startDay - 1;
+  currentDate.setDate(currentDate.getDate() - daysToSubtract);
+
+  // 统一使用 createdAt 字段统计每天的文章数量（使用本地时区的YYYY-MM-DD，避免UTC偏移导致日期错位）
+  const toLocalYMD = (d: Date) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  };
+  const articleCounts = new Map<string, number>();
+  allPosts.forEach((post) => {
+    const dateToUse = post.data.createdAt || new Date();
+    const publishDate = toLocalYMD(new Date(dateToUse));
+    articleCounts.set(publishDate, (articleCounts.get(publishDate) || 0) + 1);
+  });
+
+  // 生成足够的周数来覆盖整年
+  const endDate = new Date(currentYear, 11, 31); // 12月31日
+  const totalDays =
+    Math.ceil(
+      (endDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24),
+    ) + 7;
+  const totalWeeks = Math.ceil(totalDays / 7) - 1;
+
+  for (let week = 0; week < totalWeeks; week++) {
+    const weekData: DayData[] = [];
+
+    for (let day = 0; day < 7; day++) {
+      const dateStr = toLocalYMD(currentDate);
+      const dateSimpleStr = `${currentDate.getMonth() + 1}月${currentDate.getDate()}日`;
+      const count = articleCounts.get(dateStr) || 0;
+
+      // 根据文章数量确定颜色等级
+      let level = 0;
+      if (count > 0) level = 1;
+      if (count >= 2) level = 2;
+      if (count >= 4) level = 3;
+      if (count >= 6) level = 4;
+
+      weekData.push({
+        date: dateStr,
+        dateSimple: dateSimpleStr,
+        count,
+        level,
+      });
+
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    weeks.push(weekData);
+  }
+
+  return weeks;
+}
+
+const calendarData = generateCalendarData();
+
+// 生成月份标签（从1月开始）
+function getMonthLabels(): MonthLabel[] {
+  const months: MonthLabel[] = [];
+  const currentYear = new Date().getFullYear();
+  const chineseMonths = [
+    "一月",
+    "二月",
+    "三月",
+    "四月",
+    "五月",
+    "六月",
+    "七月",
+    "八月",
+    "九月",
+    "十月",
+    "十一月",
+    "十二月",
+  ];
+
+  for (let month = 0; month < 12; month++) {
+    const date = new Date(currentYear, month, 1);
+    // 计算该月1号在日历中的位置
+    const startOfYear = new Date(currentYear, 0, 1);
+    const startDay = startOfYear.getDay();
+    const daysToSubtract = startDay === 0 ? 6 : startDay - 1;
+    const calendarStart = new Date(startOfYear);
+    calendarStart.setDate(calendarStart.getDate() - daysToSubtract);
+
+    const daysDiff = Math.floor(
+      (date.getTime() - calendarStart.getTime()) / (1000 * 60 * 60 * 24),
+    );
+    const weekPosition = Math.floor(daysDiff / 7);
+
+    months.push({
+      name: chineseMonths[month],
+      position: weekPosition,
+    });
+  }
+
+  return months;
+}
+
+// 计算文章统计数据，统一使用 createdAt 字段
+function getArticleStats() {
+  const totalArticles = allPosts.length;
+  const currentYear = new Date().getFullYear();
+  const thisYearArticles = allPosts.filter((post) => {
+    const dateToUse = post.data.createdAt || new Date();
+    return new Date(dateToUse).getFullYear() === currentYear;
+  }).length;
+
+  const activeDays = new Set();
+  allPosts.forEach((post) => {
+    const dateToUse = post.data.createdAt || new Date();
+    if (new Date(dateToUse).getFullYear() === currentYear) {
+      activeDays.add(new Date(dateToUse).toISOString().split("T")[0]);
+    }
+  });
+
+  return {
+    totalArticles,
+    thisYearArticles,
+    activeDays: activeDays.size,
+  };
+}
+
+const monthLabels = getMonthLabels();
+const articleStats = getArticleStats();
+---
+
+<div class="article-calendar">
+  <!--   <div class="mb-3">
+    <h3 class="text-base font-medium text-txt-p dark:text-darkmode-txt-p opacity-80">
+      文章日历
+    </h3>
+  </div> -->
+  <div class="calendar-container">
+    <div class="calendar-wrapper">
+      <div class="calendar-main">
+        <div class="calendar-content">
+          <!-- 月份标签 -->
+          <div class="month-labels flex flex-row justify-between">
+            {
+              monthLabels.map((month) => (
+                <span
+                  class="text-sm text-txt-light dark:text-darkmode-txt-light"
+                  data-position={month.position}
+                  style={`--month-position: ${month.position}`}
+                >
+                  {month.name}
+                </span>
+              ))
+            }
+          </div>
+          <!-- 日历网格 -->
+          <div class="calendar-grid">
+            {
+              calendarData.map((week) => (
+                <div class="week-column">
+                  {week.map((day) => (
+                    <div
+                      class={`calendar-day ${
+                        day.level === 0
+                          ? "level-0"
+                          : day.level === 1
+                            ? "level-1"
+                            : day.level === 2
+                              ? "level-2"
+                              : day.level === 3
+                                ? "level-3"
+                                : "level-4"
+                      }`}
+                      title={`${day.count == 0 ? day.dateSimple : day.dateSimple + "（" + day.count + "篇）"}`}
+                    />
+                  ))}
+                </div>
+              ))
+            }
+          </div>
+        </div>
+
+        <!-- 图例和统计信息 -->
+        <div class="legend-stats-container w-full">
+          <!-- 文章统计 -->
+          <div class="article-stats">
+            <p class="stats-summary text-sm text-gray-600 dark:text-gray-400">
+              今年已发布 <span
+                class="font-semibold text-blue-600 dark:text-blue-400"
+                >{articleStats.thisYearArticles}</span
+              > 篇文章， 累计活跃 <span
+                class="font-semibold text-green-600 dark:text-green-400"
+                >{articleStats.activeDays}</span
+              > 天， 总共 <span
+                class="font-semibold text-purple-600 dark:text-purple-400"
+                >{articleStats.totalArticles}</span
+              > 篇文章
+            </p>
+          </div>
+          <!-- 图例 -->
+          <div class="legend">
+            <span class="legend-text">少</span>
+            <div class="legend-levels">
+              <div class="legend-square level-0"></div>
+              <div class="legend-square level-1"></div>
+              <div class="legend-square level-2"></div>
+              <div class="legend-square level-3"></div>
+              <div class="legend-square level-4"></div>
+            </div>
+            <span class="legend-text">多</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .article-calendar {
+    @apply w-full;
+    /* min-height: 240px; */
+  }
+
+  /* 在md断点以下隐藏日历 */
+  @media (max-width: 768px) {
+    .article-calendar {
+      @apply hidden;
+    }
+  }
+
+  .calendar-container {
+    @apply w-full h-full flex items-center justify-center;
+  }
+
+  .calendar-wrapper {
+    @apply w-full max-w-full;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .calendar-main {
+    @apply relative;
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .month-labels {
+    @apply relative mb-2;
+    height: 16px;
+  }
+
+  .month-label {
+    @apply absolute text-sm text-txt-s dark:text-darkmode-txt-s;
+    top: 0;
+    font-size: 12px;
+    opacity: 0.8;
+    white-space: nowrap;
+    transform-origin: left center;
+    left: calc(var(--month-position) * (12px + 4px));
+  }
+
+  .calendar-content {
+    @apply relative w-full;
+  }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(53, minmax(8px, 14px));
+    @apply gap-0.5;
+    margin-left: 0px; /* 移除左边距，因为不再有星期标签 */
+    width: fit-content;
+    max-width: calc(100vw - 50px);
+    /* overflow-x: auto; */
+  }
+
+  .week-column {
+    @apply flex flex-col gap-0.5;
+    /* 每列等宽分布 */
+    flex: 1;
+    min-width: 0;
+  }
+
+  .calendar-day {
+    @apply rounded-md transition-all duration-75 border !border-slate-400/40;
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+  }
+
+  .calendar-day:hover {
+    @apply transform scale-110 shadow-sm;
+    transition: all 0.1s ease;
+  }
+
+  .calendar-day.level-0 {
+    background: transparent; /* 默认透明 */
+    @apply border-gray-50/60 dark:border-gray-100/40;
+  }
+
+  .dark .calendar-day.level-0 {
+    background: transparent;
+    @apply border-gray-900/80;
+  }
+
+  .calendar-day.level-1 {
+    @apply bg-emerald-300 dark:bg-orange-200/80;
+    @apply border-gray-50/60 dark:border-gray-100/40;
+  }
+
+  .calendar-day.level-2 {
+    @apply bg-emerald-500 dark:bg-orange-400/90;
+    @apply border-gray-50/60 dark:border-gray-100/40;
+  }
+
+  .calendar-day.level-3 {
+    @apply bg-emerald-700 dark:bg-orange-500/90;
+    @apply border-gray-50/60 dark:border-gray-100/40;
+  }
+
+  .calendar-day.level-4 {
+    @apply bg-emerald-900 dark:bg-orange-600;
+    @apply border-gray-50/60 dark:border-gray-100/40;
+  }
+
+  /* 图例和统计容器 */
+  .legend-stats-container {
+    @apply flex items-center justify-between mt-4 pt-3;
+    /* border-top: 1px solid rgba(0, 0, 0, 0.1); */
+  }
+
+  .dark .legend-stats-container {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .legend {
+    @apply flex items-center gap-2 opacity-70;
+  }
+
+  .legend-text {
+    @apply text-xs text-txt-light dark:text-darkmode-txt-light;
+    font-size: 12px;
+  }
+
+  .legend-levels {
+    @apply flex gap-1;
+  }
+
+  .legend-square {
+    @apply w-3 h-3 rounded-sm;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .legend-square.level-0 {
+    background: transparent;
+    @apply border-gray-50/60 dark:border-gray-100/40;
+  }
+
+  .legend-square.level-1 {
+    @apply bg-emerald-300 dark:bg-orange-200/80;
+    @apply border-gray-50/60 dark:border-gray-100/40;
+  }
+
+  .legend-square.level-2 {
+    @apply bg-emerald-500 dark:bg-orange-400/90;
+    @apply border-gray-50/60 dark:border-gray-100/40;
+  }
+
+  .legend-square.level-3 {
+    @apply bg-emerald-700 dark:bg-orange-500/90;
+    @apply border-gray-50/60 dark:border-gray-100/40;
+  }
+
+  .legend-square.level-4 {
+    @apply bg-emerald-900 dark:bg-orange-600;
+    @apply border-gray-50/60 dark:border-gray-100/40;
+  }
+
+  /* 文章统计样式 */
+  .article-stats {
+    @apply flex items-center gap-4;
+  }
+
+  .stats-item {
+    @apply flex flex-col items-center gap-1;
+  }
+
+  .stats-number {
+    @apply text-sm font-bold text-txt-p dark:text-darkmode-txt-p;
+  }
+
+  .stats-label {
+    @apply text-xs text-txt-light dark:text-darkmode-txt-light opacity-70;
+    font-size: 12px;
+  }
+
+  /* 响应式设计 */
+  @media (max-width: 1024px) {
+    .calendar-day {
+      max-width: 12px;
+      max-height: 12px;
+    }
+
+    .month-label {
+      font-size: 12px;
+      left: calc(var(--month-position) * (12px + 4px));
+    }
+
+    .stats-number {
+      font-size: 12px;
+    }
+
+    .stats-label {
+      font-size: 10px;
+    }
+
+    .legend-text {
+      font-size: 10px;
+    }
+
+    .article-stats {
+      @apply gap-3;
+    }
+  }
+
+  @media (max-width: 1024px) and (min-width: 769px) {
+    .calendar-grid {
+      grid-template-columns: repeat(53, 11px);
+      @apply gap-0.5;
+      margin-left: 0px; /* 移除左边距 */
+    }
+    .week-column {
+      @apply gap-0.5;
+    }
+
+    .calendar-day {
+      width: 11px;
+      height: 11px;
+    }
+
+    .month-label {
+      font-size: 11px;
+      left: calc(var(--month-position) * (11px + 2px));
+    }
+
+    .stats-number {
+      font-size: 11px;
+    }
+
+    .stats-label {
+      font-size: 10px;
+    }
+
+    .legend-text {
+      font-size: 10px;
+    }
+  }
+</style>

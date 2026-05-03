@@ -1,0 +1,97 @@
+# Dependencies & package managers
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.yarn-integrity
+*.tgz
+.npm
+
+# PNPM store (if used)
+.pnpm-store/
+
+# Build outputs (Astro)
+dist/
+.astro/
+
+# Static site search index (generated under dist)
+dist/pagefind/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.test
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.eslintcache
+.stylelintcache
+.trae
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+tmp/
+temp/
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# nyc test coverage
+.nyc_output/
+
+# Dependency directories
+jspm_packages/
+
+# Optional REPL history
+.node_repl_history
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache/
+.parcel-cache/
+
+# next.js build output
+.next/
+
+# nuxt.js build output
+.nuxt/
+
+# vuepress build output
+.vuepress/dist
+
+# Serverless directories
+.serverless/
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Vercel local project settings
+.vercel/
+
+# TurboRepo cache (if used)
+.turbo/
+
+# Merge leftovers
+*.orig

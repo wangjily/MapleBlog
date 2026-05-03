@@ -1,0 +1,23 @@
+---
+import Breadcrumbs from "@components/common/Breadcrumbs.astro";
+import { upperHumanize } from "@lib/textConverter";
+
+interface Props {
+  title?: string;
+  description?: string;
+  articleCount?: number;
+}
+
+const { title = "", description, articleCount }: Props = Astro.props;
+---
+
+<section class="container">
+  <div
+    class="flex flex-row items-center justify-between pb-4 intersect:animate-fadeDown"
+  >
+    <h1
+      set:text={`${upperHumanize(title)}${articleCount ? `(${articleCount})` : ""}`}
+    />
+    <Breadcrumbs className="pl-4" />
+  </div>
+</section>

@@ -1,0 +1,78 @@
+---
+interface Props {
+  title: string;
+  className?: string;
+}
+
+const { title, className = "" } = Astro.props;
+
+const normalizedTitle = (title || "").trim();
+const firstTwo = normalizedTitle.slice(0, 2);
+const isHan = (ch: string) => /[\u3400-\u9FFF]/.test(ch);
+const firstTwoAreHan = firstTwo.length === 2 && isHan(firstTwo[0]) && isHan(firstTwo[1]);
+const englishWord = normalizedTitle.match(/[A-Za-z]+(?:'[A-Za-z]+)?/i)?.[0] || "";
+const displayText = firstTwoAreHan
+  ? firstTwo
+  : (englishWord ? englishWord.toUpperCase() : firstTwo.toUpperCase());
+
+// 预设的渐变背景色组合
+const gradients = [
+  "from-blue-500 to-purple-600",
+  "from-green-400 to-blue-500",
+  "from-purple-500 to-pink-500",
+  "from-yellow-400 to-orange-500",
+  "from-red-400 to-pink-500",
+  "from-indigo-500 to-purple-600",
+  "from-teal-400 to-blue-500",
+  "from-orange-400 to-red-500",
+  "from-cyan-400 to-blue-500",
+  "from-emerald-400 to-teal-500"
+];
+
+// 根据标题生成一个稳定的索引，确保相同标题总是使用相同的渐变
+const getGradientIndex = (str: string) => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // 转换为32位整数
+  }
+  return Math.abs(hash) % gradients.length;
+};
+
+const selectedGradient = gradients[getGradientIndex(title)];
+---
+
+<div 
+  class={`relative flex items-center justify-center bg-gradient-to-br ${selectedGradient} overflow-hidden ${className}`}
+>
+  <!-- 背景装饰元素 -->
+  <div class="absolute inset-0 opacity-20">
+    <!-- 圆形装饰 -->
+    <div class="absolute top-4 right-4 w-16 h-16 bg-white rounded-full opacity-30"></div>
+    <div class="absolute bottom-6 left-6 w-12 h-12 bg-white rounded-full opacity-20"></div>
+    <!-- 几何装饰 -->
+    <div class="absolute top-1/2 left-4 w-8 h-8 bg-white transform rotate-45 opacity-25"></div>
+  </div>
+  
+  <!-- 主要文字 -->
+  <div class="relative z-10 text-center">
+    <div class="text-white font-bold text-4xl md:text-5xl lg:text-6xl tracking-wider drop-shadow-lg">
+      {displayText}
+    </div>
+    <!-- 副标题效果 -->
+    <div class="mt-2 text-white/80 text-sm md:text-base font-medium tracking-wide">
+      {title.length > 10 ? title.slice(0, 20) + '...' : title}
+    </div>
+  </div>
+  
+  <!-- 光泽效果 -->
+  <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-50"></div>
+</div>
+
+<style>
+  /* 确保文字在各种背景下都清晰可见 */
+  .drop-shadow-lg {
+    filter: drop-shadow(0 10px 8px rgb(0 0 0 / 0.04)) drop-shadow(0 4px 3px rgb(0 0 0 / 0.1));
+  }
+</style>

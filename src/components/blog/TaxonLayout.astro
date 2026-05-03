@@ -1,0 +1,35 @@
+---
+import BaseLayout from "@components/base/BaseLayout.astro";
+import PageHeader from "@components/common/PageHeader.astro";
+import { upperHumanize } from "@lib/textConverter";
+import BlogListCard from "@components/blog/BlogListCard.astro";
+import type { BlogEntry } from "@/types";
+
+interface Props {
+  taxon: string;
+  entries: BlogEntry[];
+}
+
+const { taxon, entries }: Props = Astro.props;
+---
+
+<BaseLayout title={upperHumanize(taxon)}>
+  <div class="container px-3 lg:px-8">
+    <PageHeader title={taxon} articleCount={entries.length} />
+    <section class="">
+      <div class="pb-0">
+        <div class="container px-3 lg:px-8">
+          <div class="row">
+            {
+              entries.map((entry) => (
+                <div class="">
+                  <BlogListCard entry={entry} />
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

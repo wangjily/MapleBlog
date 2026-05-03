@@ -1,0 +1,113 @@
+---
+import { lowerHumanize, slugify } from "@lib/textConverter";
+import { FaRegFolder, FaHashtag } from "react-icons/fa";
+// 移除 ScrollArea 导入
+import AuthorSidebar from "@components/common/authorSidebar.astro";
+import LiquidGlassLess from "@components/common/LiquidGlassLess.astro";
+
+// AuthorImg 已经是 ImageMetadata 类型
+
+interface CategoryWithCount {
+  name: string;
+  slug: string;
+  count: number;
+}
+
+interface Props {
+  tags: string[];
+  categories: string[] | CategoryWithCount[];
+  allBlogCount?: number;
+}
+
+const { tags, categories }: Props = Astro.props;
+---
+
+<div class="h-full w-full overflow-y-auto">
+  <!-- 作者信息 -->
+  <AuthorSidebar />
+  <!-- categories -->
+
+  <LiquidGlassLess
+    heavy
+    wrapperClass=" dock !p-6 my-2 mb-4"
+    animation="fadeLeft"
+  >
+    <div class="intersect:animate-fadeLeft">
+      <!-- <div> -->
+      <h4 class="mb-2 text-base md:text-lg">
+        <a href="/blog/categories">
+          <FaRegFolder className={"mr-1 -mt-1.5 inline-block"} />
+           分类
+        </a>
+      </h4>
+      <hr class="mb-2 -mt-1 border border-gray-600/50" />
+      <ul class="space-y-3">
+        {
+          categories.map((category) => {
+            // 判断是否为带有count的分类对象
+            const isCountCategory =
+              typeof category === "object" &&
+              "name" in category &&
+              "count" in category;
+            const categoryName = isCountCategory ? category.name : category;
+            const categoryCount = isCountCategory ? category.count : "";
+            const categorySlug = isCountCategory
+              ? category.slug
+              : slugify(categoryName);
+
+            return (
+              <li class="">
+                <a
+                  class="text-sm md:text-lg px-2 py-1 transition-all list-item border-2 border-indigo-500/0 hover:border-slate-500 hover:rounded-lg hover:bg-white/40"
+                  href={`/blog/categories/${categorySlug}`}
+                >
+                  {categoryName}
+                  {categoryCount && (
+                    <div class="inline-block pl-1 text-gray-500">
+                      ({categoryCount})
+                    </div>
+                  )}
+                </a>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </div>
+  </LiquidGlassLess>
+
+  <!-- tags -->
+  <LiquidGlassLess
+    heavy
+    wrapperClass=" dock !p-6 mt-2 mb-4"
+    animation="fadeLeft"
+  >
+    <div class="intersect:animate-fadeLeft">
+      <h4 class="mb-2 text-base md:text-lg">
+        <a href="/blog/tags">
+          <FaHashtag className={"mr-1 -mt-1.5 inline-block"} />
+           标签
+        </a>
+      </h4>
+      <hr class="mb-2 -mt-1 border border-gray-600/50" />
+      <ul>
+        {
+          tags.map((tag: any) => {
+            return (
+              <li class="inline-block m-1 ">
+                <a
+                  aria-label={tag}
+                  href={`/blog/tags/${lowerHumanize(tag)}`}
+                  type="secondary"
+                  class="text-sm md:text-lg rounded-sm transition-all px-2 py-1 border-2 border-indigo-500/0 hover:border-slate-500 hover:rounded-lg hover:bg-white/40"
+                >
+                  #{tag}
+                </a>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </div>
+  </LiquidGlassLess>
+</div>

@@ -1,0 +1,18 @@
+* text=auto eol=lf
+
+# Treat these as text
+*.md text
+*.ts text
+*.tsx text
+*.astro text
+*.json text
+*.css text
+*.scss text
+
+# Keep images as binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.svg binary

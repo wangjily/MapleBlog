@@ -1,0 +1,475 @@
+---
+import ThemeSwitcher from "@components/base/ThemeSwitcher.astro";
+import { IoSearch } from "react-icons/io5";
+import logoImage from "@assets/image/logo.svg";
+import LiquidGlass from "@components/common/LiquidGlassLess.astro";
+import GlassButton from "@components/ui/GlassButton.astro";
+import { SITE_INFO } from "@lib/config";
+import { Image } from "astro:assets";
+
+const { pathname } = Astro.url;
+
+const stickyHeader = true;
+
+// 获取网站基本信息
+let siteName = SITE_INFO?.SITE_NAME || ""; // 优先读取配置项，若无则使用默认
+let siteLogoUrl = SITE_INFO?.LOGO_IMAGE || logoImage.src || "";
+
+// 静态菜单数据
+const menu = [
+  {
+    id: 1,
+    name: "首页",
+    url: "/",
+    target: "_self",
+    position: "header",
+    parent_id: null,
+    sort_order: 1,
+    children: [],
+  },
+  {
+    id: 2,
+    name: "博客",
+    url: "/blog",
+    target: "_self",
+    position: "header",
+    parent_id: null,
+    sort_order: 2,
+    children: [],
+  },
+  {
+    id: 3,
+    name: "动态",
+    url: "/notes",
+    target: "_self",
+    position: "header",
+    parent_id: null,
+    sort_order: 3,
+    children: [],
+  },
+  {
+    id: 4,
+    name: "关于",
+    url: "/about",
+    target: "_self",
+    position: "header",
+    parent_id: null,
+    sort_order: 4,
+    children: [],
+  },
+  {
+    id: 5,
+    name: "友链",
+    url: "/links",
+    target: "_self",
+    position: "header",
+    parent_id: null,
+    sort_order: 5,
+    children: [],
+  },
+];
+---
+
+<header
+  transition:persist
+  class={`container px-3 lg:px-8 pb-6 z-30 lg:mt-4 lg:rounded-full ${stickyHeader && "sticky top-0"}`}
+>
+  <LiquidGlass
+    enableGlassEffect
+    containerType="nav"
+    wrapperClass="p-2.5 rounded-[35px] relative hover:bg-white/30 dark:bg-black/20 dark:hover:bg-black/50 !transition-colors duration-500 !delay-300"
+    textClass="min-h-12 md:min-h-14 flex flex-wrap items-center justify-start"
+    effectClass="rounded-[35px]"
+    tintClass="rounded-[35px]"
+    shineClass="rounded-[35px]"
+    animation="fadeDown"
+  >
+    <!-- 网站名称 -->
+    <div class="order-0 flex ml-4 items-center">
+      <a href="/" class="flex items-center">
+        {
+          siteLogoUrl && (
+            <Image
+              src={siteLogoUrl}
+              alt={siteName}
+              class="w-8 h-8 mx-1 rounded-full"
+              width={32}
+              height={32}
+              eagerly-loaded={true}
+            />
+          )
+        }
+
+        {
+          siteName && (
+            <span class="text-xl font-bold justify-center text-txt-p dark:text-darkmode-txt-p">
+              {siteName}
+            </span>
+          )
+        }
+      </a>
+    </div>
+
+    <!-- navbar toggler -->
+    <input id="nav-toggle" type="checkbox" class="hidden" />
+    <label
+      for="nav-toggle"
+      class="order-2 cursor-pointer flex items-center md:hidden text-txt-p dark:text-darkmode-txt-p lg:order-1"
+    >
+      <svg
+        id="show-button"
+        class="h-5 mx-2 fill-current block"
+        viewBox="0 0 20 20"
+      >
+        <title>Menu Open</title>
+        <path d="M0 3h20v2H0V3z m0 6h20v2H0V9z m0 6h20v2H0V0z"></path>
+      </svg>
+      <svg
+        id="hide-button"
+        class="h-5 mx-2 fill-current hidden"
+        viewBox="0 0 20 20"
+      >
+        <title>Menu Close</title>
+        <polygon
+          points="11 9 22 9 22 11 11 11 11 22 9 22 9 11 -2 11 -2 9 9 9 9 -2 11 -2"
+          transform="rotate(45 10 10)"></polygon>
+      </svg>
+    </label>
+    <!-- /navbar toggler -->
+    <ul
+      id="nav-menu"
+      class="bg-slate-100/90 md:bg-inherit rounded-lg text-center relative ml-8 order-3 hidden w-full p-4 md:order-1 md:flex md:w-auto md:space-x-1 md:p-0 lg:text-left lg:space-x-2"
+    >
+      {
+        menu.map((item: any) => (
+          <li>
+            <a
+              href={item.url}
+              target={item.target || "_self"}
+              class={`flex items-center justify-center h-full my-4 md:my-0 border-none gap-2 px-1 font-bold text-txt-p transition-all duration-300 dark:text-darkmode-txt-p lg:px-2 rounded-xl relative z-10 hover:text-orange-600 dark:hover:text-orange-500 text-lg ${
+                pathname === `${item.url}/` || pathname === item.url
+                  ? "text-orange-500"
+                  : ""
+              }`}
+            >
+              <GlassButton
+                variant="menu"
+                size="menu"
+                open={pathname === `${item.url}/` || pathname === item.url}
+                className="!text-orange-300  w-full"
+              >
+                {item.icon && <span class="text-sm">{item.icon}</span>}
+                {item.name}
+              </GlassButton>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="order-1 ml-auto flex items-center md:order-2">
+      <a
+        class="mr-4 inline-block border-border text-xl text-txt-p dark:border-darkmode-border dark:text-darkmode-txt-p"
+        href="/search"
+        aria-label="search"
+        title="搜索"
+      >
+        <IoSearch />
+      </a>
+
+      <!-- 随机文章按钮 -->
+      <button
+        id="random-article-btn"
+        class="mr-4 p-2 text-orange-400 hover:text-orange-500 dark:text-orange-500 dark:hover:text-orange-400 transition-colors group"
+        title="随机文章"
+      >
+        <svg
+          class="w-5 h-5 transition-transform duration-300 group-hover:rotate-180"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M20 4v3.5a.3.3 0 0 1-.3.3H16a.3.3 0 0 1-.212-.512l1.147-1.146A8 8 0 0 0 4.34 8.54a.6.6 0 0 1-1.159-.308A10 10 0 0 1 18.207 4.54l1.147-1.146A.3.3 0 0 1 20 4zm-16 16v-3.5a.3.3 0 0 1 .3-.3H8a.3.3 0 0 1 .212.512L7.207 18A8 8 0 0 0 19.66 15.46a.6.6 0 0 1 1.159.308A10 10 0 0 1 5.793 19.46l-1.147 1.146A.3.3 0 0 1 4 20z"
+          />
+        </svg>
+      </button>
+
+      <ThemeSwitcher />
+    </div>
+    <!-- 背景玻璃效果 -->
+    <!-- <div
+  class="glass absolute inset-0 -z-10 lg:rounded-lg intersect:animate-fadeDown"
+  >
+  </div> -->
+  </LiquidGlass>
+
+  <style>
+    /* 确保二级菜单正常显示 */
+    .group:hover .submenu {
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
+
+    /* 移动端菜单样式 */
+    @media (max-width: 768px) {
+      #nav-menu {
+        position: absolute;
+        top: 120%;
+        right: 0;
+        width: calc(50%);
+        /* background: rgba(255, 255, 255, 0.9); */
+        backdrop-filter: blur(10px);
+        /* border-radius: 0 0 1rem 1rem; */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+      }
+
+      #nav-menu.show {
+        display: block !important;
+      }
+
+      /* 移动端二级菜单始终显示 */
+      .submenu {
+        position: static !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: scale(1) !important;
+        box-shadow: none !important;
+        border: none !important;
+        /* background: rgba(0, 0, 0, 0.05) !important; */
+        margin-top: 0.5rem;
+        margin-left: 1rem;
+        border-left: 2px solid rgba(249, 115, 22, 0.3);
+        padding-left: 0.5rem;
+      }
+
+      /* 移动端一级菜单项样式调整 */
+      .group > a {
+        /* border-bottom: 1px solid rgba(0, 0, 0, 0.1); */
+        margin-bottom: 0;
+      }
+    }
+
+    /* 深色模式下的移动端菜单 */
+    @media (max-width: 768px) {
+      :global(.dark) #nav-menu {
+        background: rgba(31, 41, 55, 0.8);
+      }
+
+      :global(.dark) .submenu {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-left-color: rgba(249, 115, 22, 0.5) !important;
+      }
+
+      :global(.dark) .group > a {
+        border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+      }
+    }
+
+    /* 菜单项激活状态样式优化 - 防止挤压其他菜单项 */
+    #nav-menu .glass-button {
+      transform: none !important;
+    }
+
+    #nav-menu .glass-button:hover {
+      transform: none !important;
+    }
+
+    #nav-menu .glass-button:active {
+      transform: none !important;
+    }
+  </style>
+
+  <script>
+    // 页面切换时更新菜单选中状态
+    document.addEventListener("astro:page-load", () => {
+      updateActiveMenuItem();
+    });
+
+    function updateActiveMenuItem() {
+      const currentPath = window.location.pathname;
+      const menuItems = document.querySelectorAll("#nav-menu a");
+
+      // 移除所有激活状态和指示器
+      menuItems.forEach((item) => {
+        item.classList.remove("text-orange-500", "hover-active");
+        item.children[0].className =
+          "!gap-[inherit] !px-4 !py-2 border border-white/0 w-full";
+      });
+
+      // 找到当前激活的菜单项
+      const activeItem = Array.from(menuItems).find((item) => {
+        const href = item.getAttribute("href");
+        return (
+          currentPath === href ||
+          currentPath === href + "/" ||
+          (href && href !== "/" && currentPath.indexOf(href) !== -1)
+        );
+      });
+
+      // 添加当前页面的激活状态
+      if (activeItem) {
+        // 设置文本颜色
+        activeItem.classList.add("text-orange-500");
+        activeItem.children[0].className +=
+          " glass-button glass-button--menu glass-button--menu dark:!text-orange-300 dark:!bg-black/30 dark:!border-gray-400  w-full";
+      }
+
+      // 为所有菜单项添加鼠标悬浮事件监听器
+      menuItems.forEach((item) => {
+        // 移除之前的事件监听器（如果存在）
+        item.removeEventListener("mouseenter", handleMenuItemHover);
+        item.removeEventListener("mouseleave", handleMenuItemLeave);
+
+        // 添加新的事件监听器
+        item.addEventListener("mouseenter", handleMenuItemHover);
+        item.addEventListener("mouseleave", handleMenuItemLeave);
+      });
+    }
+
+    // 鼠标悬浮进入事件处理函数
+    function handleMenuItemHover(event: { currentTarget: any; }) {
+      const item = event.currentTarget;
+      const currentPath = window.location.pathname;
+      const href = item.getAttribute("href");
+
+      // 检查是否是当前激活页面
+      const isCurrentPage =
+        currentPath === href ||
+        currentPath === href + "/" ||
+        (href && href !== "/" && currentPath.indexOf(href) !== -1);
+
+      // 如果不是当前页面，添加悬浮激活样式
+      if (!isCurrentPage) {
+        item.classList.add("text-orange-500", "hover-active");
+        item.children[0].className +=
+          " glass-button glass-button--menu glass-button--menu dark:!text-orange-300 dark:!bg-black/30 dark:!border-gray-400  w-full";
+      }
+    }
+
+    // 鼠标悬浮离开事件处理函数
+    function handleMenuItemLeave(event: { currentTarget: any; }) {
+      const item = event.currentTarget;
+      const currentPath = window.location.pathname;
+      const href = item.getAttribute("href");
+
+      // 检查是否是当前激活页面
+      const isCurrentPage =
+        currentPath === href ||
+        currentPath === href + "/" ||
+        (href && href !== "/" && currentPath.indexOf(href) !== -1);
+
+      // 如果不是当前页面，移除悬浮激活样式
+      if (!isCurrentPage) {
+        item.classList.remove("text-orange-500", "hover-active");
+        item.children[0].className =
+          "!gap-[inherit] !px-4 !py-2 border border-white/0 w-full";
+      }
+    }
+
+    // 移动端菜单切换
+    document.addEventListener("astro:page-load", function () {
+      const navToggle = document.getElementById("nav-toggle");
+      const navMenu = document.getElementById("nav-menu");
+
+      // 监听导航切换
+      if (navToggle && navMenu) {
+        (navToggle as HTMLInputElement).addEventListener("change", function () {
+          if ((this as HTMLInputElement).checked) {
+            navMenu.classList.remove("hidden");
+            navMenu.classList.add("show");
+          } else {
+            navMenu.classList.add("hidden");
+            navMenu.classList.remove("show");
+          }
+        });
+      }
+
+      // 点击菜单项后关闭移动端菜单
+      const menuLinks = document.querySelectorAll("#nav-menu a");
+      menuLinks.forEach((link) => {
+        link.addEventListener("click", function () {
+          if (navToggle && navMenu) {
+            (navToggle as HTMLInputElement).checked = false;
+            navMenu.classList.add("hidden");
+            navMenu.classList.remove("show");
+          }
+        });
+      });
+
+      /* 移动端处理：移除二级菜单的点击切换逻辑，让所有二级菜单始终显示 */
+      // 在移动端，二级菜单通过CSS始终显示，无需JavaScript切换
+
+      // 下拉菜单交互
+      const dropdownItems = document.querySelectorAll(".dropdown");
+      dropdownItems.forEach((dropdown) => {
+        const toggle = dropdown.querySelector(".dropdown-toggle");
+        const menu = dropdown.querySelector(".dropdown-menu");
+
+        if (toggle && menu) {
+          toggle.addEventListener("click", function (e) {
+            e.preventDefault();
+            dropdown.classList.toggle("active");
+          });
+
+          // 点击外部关闭下拉菜单
+          document.addEventListener("click", function (e) {
+            if (!dropdown.contains(e.target as Node)) {
+              dropdown.classList.remove("active");
+            }
+          });
+        }
+      });
+    });
+
+    // 随机文章按钮点击事件
+    document.addEventListener("astro:page-load", function () {
+      const randomBtn = document.getElementById("random-article-btn");
+      if (randomBtn) {
+        randomBtn.addEventListener("click", async function () {
+          const button = this as HTMLButtonElement;
+          const originalHTML = button.innerHTML; // 在函数开始时保存原始HTML
+
+          try {
+            // 显示加载状态
+            button.disabled = true;
+            button.innerHTML =
+              '<svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>';
+
+            // 获取所有已发布的博客文章
+            const response = await fetch("/api/blog-articles.json");
+            if (!response.ok) {
+              throw new Error("无法获取文章列表");
+            }
+            const articles = await response.json();
+            if (!articles || articles.length === 0) {
+              throw new Error("没有找到可用的文章");
+            }
+            
+
+            // 随机选择一篇文章
+            const randomIndex = Math.floor(Math.random() * articles.length);
+            const randomArticle = articles[randomIndex];
+
+            // 跳转到随机文章页面
+            window.location.href = `/blog/${randomArticle.slug}`;
+          } catch (error) {
+            console.error("获取随机文章失败:", error);
+            // 恢复按钮状态
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+
+            // 显示错误提示
+            alert("获取随机文章失败，请稍后重试");
+          }
+        });
+      }
+    });
+
+    // 初始化
+    updateActiveMenuItem();
+  </script>
+</header>

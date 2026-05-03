@@ -1,0 +1,305 @@
+---
+import BaseLayout from "@components/base/BaseLayout.astro";
+import GlassButton from "@components/ui/GlassButton.astro";
+---
+
+<BaseLayout title="提示组件演示" description="展示各种类型的提示消息效果">
+  <div class="container mx-auto px-4 py-8 max-w-4xl">
+    <h1 class="text-3xl font-bold mb-8 text-center">提示组件演示</h1>
+
+    <!-- 基本用法 -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold mb-6">基本用法</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <button
+          id="success-btn"
+          class="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors"
+        >
+          成功提示
+        </button>
+
+        <button
+          id="info-btn"
+          class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+        >
+          信息提示
+        </button>
+
+        <button
+          id="warning-btn"
+          class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
+        >
+          警告提示
+        </button>
+
+        <button
+          id="error-btn"
+          class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+        >
+          错误提示
+        </button>
+      </div>
+    </section>
+
+    <!-- 位置演示 -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold mb-6">位置演示</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <GlassButton
+          id="top-left-btn"
+          variant="info"
+          size="md"
+        >
+          左上角
+        </GlassButton>
+
+        <GlassButton
+          id="top-center-btn"
+          variant="info"
+          size="md"
+        >
+          顶部居中
+        </GlassButton>
+
+        <GlassButton
+          id="top-right-btn"
+          variant="info"
+          size="md"
+        >
+          右上角
+        </GlassButton>
+
+        <GlassButton
+          id="bottom-left-btn"
+          variant="secondary"
+          size="md"
+        >
+          左下角
+        </GlassButton>
+
+        <GlassButton
+          id="bottom-center-btn"
+          variant="secondary"
+          size="md"
+        >
+          底部居中
+        </GlassButton>
+
+        <GlassButton
+          id="bottom-right-btn"
+          variant="secondary"
+          size="md"
+        >
+          右下角
+        </GlassButton>
+      </div>
+    </section>
+
+    <!-- 高级用法 -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold mb-6">高级用法</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <GlassButton
+          id="no-icon-btn"
+          variant="secondary"
+          size="md"
+        >
+          无图标提示
+        </GlassButton>
+
+        <GlassButton
+          id="no-close-btn"
+          variant="secondary"
+          size="md"
+        >
+          不可关闭
+        </GlassButton>
+
+        <GlassButton
+          id="persistent-btn"
+          variant="secondary"
+          size="md"
+        >
+          持久显示
+        </GlassButton>
+      </div>
+    </section>
+
+    <!-- 批量操作 -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold mb-6">批量操作</h2>
+      <div class="flex gap-4">
+        <GlassButton
+          id="multiple-btn"
+          variant="success"
+          size="md"
+        >
+          显示多个提示
+        </GlassButton>
+
+        <GlassButton
+          id="clear-all-btn"
+          variant="danger"
+          size="md"
+        >
+          清除所有提示
+        </GlassButton>
+      </div>
+    </section>
+
+    <!-- 使用说明 -->
+    <section class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+      <h2 class="text-2xl font-semibold mb-4">使用说明</h2>
+      <div class="prose dark:prose-invert max-w-none">
+        <h3>JavaScript 调用方式</h3>
+        <pre
+          class="bg-gray-100 dark:bg-gray-900 p-4 rounded-lg overflow-x-auto"><code>{`// 导入提示工具
+import { showSuccess, showInfo, showWarning, showError, showToast } from '@lib/toastUtils';
+
+// 快捷方法
+showSuccess('操作成功！');
+showInfo('这是一条信息');
+showWarning('请注意！');
+showError('操作失败');
+
+// 完整配置
+showToast({
+  title: '自定义标题',
+  content: '自定义内容',
+  type: 'success',
+  position: 'top-right',
+  duration: 3000,
+  showIcon: true,
+  closable: true
+});`}</code></pre>
+
+        <h3>Astro 组件使用</h3>
+        <pre
+          class="bg-gray-100 dark:bg-gray-900 p-4 rounded-lg overflow-x-auto"><code>{`---
+import Toast from '../../components/common/Toast.astro';
+---
+
+<Toast 
+  title="提示标题"
+  content="提示内容"
+  type="success"
+  position="top-right"
+  duration={3000}
+/>`}</code></pre>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  // 等待页面加载完成
+  document.addEventListener("DOMContentLoaded", async function () {
+    // 动态导入提示工具
+    const {
+      showSuccess,
+      showInfo,
+      showWarning,
+      showError,
+      showToast,
+      clearAllToasts,
+    } = await import("@lib/toastUtils");
+    console.log("showInfo", showInfo);
+
+    // 基本用法
+    document.getElementById("success-btn")?.addEventListener("click", () => {
+      showSuccess("操作成功完成！", "成功");
+    });
+
+    document.getElementById("info-btn")?.addEventListener("click", () => {
+      showInfo("这是一条重要信息，请注意查看。", "信息提示");
+    });
+
+    document.getElementById("warning-btn")?.addEventListener("click", () => {
+      showWarning("请检查您的输入内容是否正确。", "警告");
+    });
+
+    document.getElementById("error-btn")?.addEventListener("click", () => {
+      showError("网络连接失败，请稍后重试。", "错误");
+    });
+
+    // 位置演示
+    document.getElementById("top-left-btn")?.addEventListener("click", () => {
+      showInfo("左上角位置的提示消息", "位置演示", { position: "top-left" });
+    });
+
+    document.getElementById("top-center-btn")?.addEventListener("click", () => {
+      showInfo("顶部居中位置的提示消息", "位置演示", {
+        position: "top-center",
+      });
+    });
+
+    document.getElementById("top-right-btn")?.addEventListener("click", () => {
+      showInfo("右上角位置的提示消息", "位置演示", { position: "top-right" });
+    });
+
+    document
+      .getElementById("bottom-left-btn")
+      ?.addEventListener("click", () => {
+        showInfo("左下角位置的提示消息", "位置演示", {
+          position: "bottom-left",
+        });
+      });
+
+    document
+      .getElementById("bottom-center-btn")
+      ?.addEventListener("click", () => {
+        showInfo("底部居中位置的提示消息", "位置演示", {
+          position: "bottom-center",
+        });
+      });
+
+    document
+      .getElementById("bottom-right-btn")
+      ?.addEventListener("click", () => {
+        showInfo("右下角位置的提示消息", "位置演示", {
+          position: "bottom-right",
+        });
+      });
+
+    // 高级用法
+    document.getElementById("no-icon-btn")?.addEventListener("click", () => {
+      showInfo("这是一个没有图标的提示消息", "无图标", { showIcon: false });
+    });
+
+    document.getElementById("no-close-btn")?.addEventListener("click", () => {
+      showInfo("这个提示不能手动关闭", "不可关闭", {
+        closable: false,
+        duration: 2000,
+      });
+    });
+
+    document.getElementById("persistent-btn")?.addEventListener("click", () => {
+      showWarning("这个提示会一直显示，直到手动关闭", "持久显示", {
+        duration: 0,
+      });
+    });
+
+    // 批量操作
+    document.getElementById("multiple-btn")?.addEventListener("click", () => {
+      showSuccess("第一个提示消息", "消息 1", { position: "top-right" });
+      setTimeout(() => {
+        showInfo("第二个提示消息", "消息 2", { position: "top-right" });
+      }, 500);
+      setTimeout(() => {
+        showWarning("第三个提示消息", "消息 3", { position: "top-right" });
+      }, 1000);
+    });
+
+    document.getElementById("clear-all-btn")?.addEventListener("click", () => {
+      clearAllToasts();
+    });
+  });
+</script>
+
+<style>
+  .prose pre {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+</style>

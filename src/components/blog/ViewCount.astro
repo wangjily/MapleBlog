@@ -1,0 +1,81 @@
+---
+const { slug, hidden = false } = Astro.props as {
+  slug: string;
+  hidden?: boolean;
+};
+---
+
+<span id="view-count" class="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400" style={hidden ? 'display:none' : ''}>
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7zM10 5c-3.478 0-6.542 2.24-7.708 5 1.166 2.76 4.23 5 7.708 5 3.478 0 6.542-2.24 7.708-5C16.542 7.24 13.478 5 10 5z" clip-rule="evenodd" />
+  </svg>
+  <span id="view-count-number" class="tabular-nums">--</span>
+  <span class="ml-1">次浏览</span>
+  <span class="ml-2 text-xs text-gray-400">(仅当前设备)</span>
+</span>
+
+<script type="module" define:vars={{ slug }}>
+  // @ts-nocheck
+  const STORAGE_KEY = `view_count::${slug}`;
+  const DEDUP_MS = 60 * 60 * 1000; // 1 小时去重
+
+  let countEl = document.getElementById('view-count-number');
+
+  function readState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return { count: 0, lastViewedAt: 0 };
+      const parsed = JSON.parse(raw);
+      const count = typeof parsed.count === 'number' && parsed.count >= 0 ? parsed.count : 0;
+      const lastViewedAt = typeof parsed.lastViewedAt === 'number' ? parsed.lastViewedAt : 0;
+      return { count, lastViewedAt };
+    } catch {
+      return { count: 0, lastViewedAt: 0 };
+    }
+  }
+
+  function writeState(next) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    } catch (e) {
+      // localStorage 写入可能失败（无痕模式等），忽略
+      console.warn('写入本地浏览计数失败', e);
+    }
+  }
+
+  function renderCount(n) {
+    if (!countEl) {
+      countEl = document.getElementById('view-count-number');
+    }
+    if (countEl) countEl.textContent = String(n);
+  }
+
+  function incrementIfNeeded() {
+    const now = Date.now();
+    const { count, lastViewedAt } = readState();
+    if (now - lastViewedAt >= DEDUP_MS) {
+      const next = { count: count + 1, lastViewedAt: now };
+      writeState(next);
+      renderCount(next.count);
+    } else {
+      renderCount(count);
+    }
+  }
+
+  function init() {
+    // 初始渲染
+    renderCount(readState().count);
+    // 根据去重规则尝试增加一次
+    incrementIfNeeded();
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('astro:page-load', init);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      // 页面重新可见时再尝试一次
+      setTimeout(incrementIfNeeded, 200);
+    }
+  });
+</script>

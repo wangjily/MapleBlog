@@ -1,0 +1,90 @@
+---
+import BaseLayout from "@components/base/BaseLayout.astro";
+import BlogListCard from "@components/blog/BlogListCard.astro";
+import Pagination from "@components/common/Pagination.astro";
+import PageHeader from "@components/common/PageHeader.astro";
+import BlogSidebar from "@components/blog/Sidebar.astro";
+import type { BlogEntry } from "@/types";
+
+interface CategoryWithCount {
+  name: string;
+  slug: string;
+  count: number;
+}
+
+interface Props {
+  entryIndex: BlogEntry;
+  entries: BlogEntry[];
+  tags: string[];
+  categories: string[] | CategoryWithCount[];
+  // allCategories: string[];
+  pageIndex: number;
+  pageCount: number;
+  allBlogCount?: number;
+  basePath?: string; // 自定义分页基础路径
+}
+
+const {
+  entryIndex,
+  entries,
+  tags,
+  categories,
+  // allCategories,
+  pageIndex,
+  pageCount,
+  allBlogCount,
+  basePath,
+} = Astro.props;
+
+const { title, description } = entryIndex
+  ? entryIndex.data
+  : {
+      title: "分类",
+      description: "分类下的文章",
+    };
+
+console.log("当前所在页：", pageIndex);
+---
+
+<BaseLayout title={title} description={description}>
+  <div class="container px-3 lg:px-8">
+    <PageHeader
+      title={title}
+      description={description}
+      articleCount={allBlogCount}
+    />
+    <section class="">
+      <div class="flex" style="padding:0px;">
+        <div class="row px-0 mx-0 w-full">
+          <!-- blog posts -->
+          <div class="col-12 lg:col-9 p-0 in">
+            {
+              entries.map((entry, index) => (
+                <div class="mb-4" style={`animation-delay: ${index * 100}ms`}>
+                  <BlogListCard entry={entry} />
+                </div>
+              ))
+            }
+            <Pagination
+              collection="blog"
+              pageIndex={pageIndex}
+              pageCount={pageCount}
+              basePath={basePath}
+            />
+          </div>
+          <!-- sidebar -->
+          <div
+            class="lg:col-3 lg:flex p-0 lg:pl-4"
+            style="position: sticky; top: 4.1rem; align-self: flex-start;"
+          >
+            <BlogSidebar
+              tags={tags}
+              categories={categories}
+              allBlogCount={allBlogCount}
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

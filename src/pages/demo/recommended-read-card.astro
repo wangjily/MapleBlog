@@ -1,0 +1,138 @@
+---
+import BaseLayout from "@components/base/BaseLayout.astro";
+import RecommendedReadCardComponent from "@components/blog/RecommendedReadCard.astro";
+import { getCollection } from "astro:content";
+
+const blogEntries = await getCollection("blog", ({ id }) => !id.startsWith("-"));
+const sampleEntries = blogEntries.slice(0, 5);
+---
+
+<BaseLayout title="推荐阅读卡片组件演示">
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8 text-center">推荐阅读卡片组件演示</h1>
+
+    {
+      sampleEntries.length === 0 ? (
+        <p class="mx-auto max-w-xl rounded-2xl border border-dashed border-border p-8 text-center text-txt-light dark:border-darkmode-border dark:text-darkmode-txt-light">
+          当前没有可用于演示的博客文章。请在{" "}
+          <code class="rounded bg-black/5 px-1.5 py-0.5 text-sm dark:bg-white/10">
+            src/content/blog
+          </code>{" "}
+          下添加至少一篇 .md 后再访问本页。
+        </p>
+      ) : (
+    <div class="max-w-4xl mx-auto space-y-8">
+      <!-- 标准模式 -->
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">标准模式</h2>
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+          <div class="space-y-2">
+            {sampleEntries.map((entry) => (
+              <RecommendedReadCardComponent 
+                entry={entry} 
+                showImage={true}
+                showReadingTime={true}
+                compact={false}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- 紧凑模式 -->
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">紧凑模式</h2>
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+          <div class="space-y-1">
+            {sampleEntries.map((entry) => (
+              <RecommendedReadCardComponent 
+                entry={entry} 
+                showImage={true}
+                showReadingTime={true}
+                compact={true}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- 无图片模式 -->
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">无图片模式</h2>
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+          <div class="space-y-2">
+            {sampleEntries.map((entry) => (
+              <RecommendedReadCardComponent 
+                entry={entry} 
+                showImage={false}
+                showReadingTime={true}
+                compact={false}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- 仅显示日期模式 -->
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">仅显示日期模式</h2>
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+          <div class="space-y-2">
+            {sampleEntries.map((entry) => (
+              <RecommendedReadCardComponent 
+                entry={entry} 
+                showImage={true}
+                showReadingTime={false}
+                compact={false}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- 侧边栏样式演示 -->
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">侧边栏样式演示</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- 主内容区域 -->
+          <div class="lg:col-span-2">
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+              <h3 class="text-xl font-semibold mb-4">主要内容区域</h3>
+              <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                这里是主要内容区域的演示。推荐阅读卡片通常会放在侧边栏中，
+                为用户提供相关文章的快速访问入口。卡片设计简洁，
+                包含文章标题、发布日期和预估阅读时间等关键信息。
+              </p>
+            </div>
+          </div>
+          
+          <!-- 侧边栏 -->
+          <div class="lg:col-span-1">
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+              <h3 class="text-lg font-semibold mb-4">推荐阅读</h3>
+              <div class="space-y-1">
+                {sampleEntries.slice(0, 3).map((entry) => (
+                  <RecommendedReadCardComponent 
+                    entry={entry} 
+                    showImage={true}
+                    showReadingTime={true}
+                    compact={true}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  /* 确保演示页面的样式 */
+  .container {
+    min-height: 100vh;
+  }
+</style>

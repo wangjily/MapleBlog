@@ -1,0 +1,27 @@
+@use "sass:meta";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: '寒蝉半圆体';
+  // font-family: "PingFang SC", " Hiragino Sans GB", " Microsoft YaHei";
+  font-weight: 400;
+  src: url('/fonts/hanchan/ChillRoundM.woff2') format('woff2');
+}
+
+@layer base {
+  @include meta.load-css("base");
+}
+
+@layer components {
+  @include meta.load-css("prose");
+  @include meta.load-css("markdown");
+  @include meta.load-css("glass");
+  @include meta.load-css("glass-new");
+}
+
+@layer utilities {
+  @include meta.load-css("utilities");
+  @include meta.load-css("twikoo-custom");
+}

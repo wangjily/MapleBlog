@@ -1,0 +1,119 @@
+---
+import type { BlogEntry } from "@/types";
+import { formatDate } from "@lib/formatDate";
+import { Image } from "astro:assets";
+import defaultImage from "@assets/site-avatar.png";
+import { slug } from "github-slugger";
+
+interface Props {
+  entry: BlogEntry;
+  width?: string; // 自定义宽度，如 "w-64", "w-80" 等
+  height?: string; // 自定义高度，如 "h-48", "h-56" 等
+  imageAspect?: string; // 图片宽高比，如 "aspect-[4/3]", "aspect-[16/9]" 等
+  showDescription?: boolean; // 是否显示描述
+}
+
+const {
+  entry,
+  width = "w-full",
+  height = "h-48",
+  imageAspect = "aspect-[16/9]",
+  showDescription = false,
+}: Props = Astro.props;
+
+const {
+  title,
+  description,
+  // autodescription,
+  createdAt,
+  categories,
+  image,
+  imageAlt,
+} = entry.data;
+
+const descriptionLength = 80; // 更精简的描述长度
+
+// 使用默认图片如果没有设置图片
+const displayImage = image && typeof image === "object" && "src" in image ? image : defaultImage;
+const displayImageAlt = imageAlt || `${title} - 默认图片`;
+
+const entryDate = createdAt ? formatDate(createdAt) : null;
+const entryDescription = description;
+---
+
+<div
+  class={`${width} ${height} relative rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 group`}
+>
+  <a href={`/blog/${slug(entry.data.title)}`} class="block w-full h-full relative">
+    <!-- 背景图片 -->
+    <Image
+      class="w-full h-full object-cover transition-all duration-500 ease-out group-hover:scale-105"
+      src={displayImage}
+      alt={displayImageAlt}
+      width={400}
+      height={300}
+      loading="lazy"
+      format="webp"
+      quality={75}
+      decoding="async"
+    />
+
+    <!-- 渐变遮罩层 -->
+    <div
+      class="absolute inset-0 bg-gradient-to-t from-black/60  to-white/10 group-hover:from-black/70 group-hover:to-white/0 transition-all ease-out duration-400"
+    >
+    </div>
+
+    <!-- 文字内容叠加层 -->
+    <div class="absolute inset-0 p-3 flex flex-col justify-end text-white">
+      <!-- 分类标签 -->
+      <!-- {
+        categories && categories.length > 0 && (
+          <div class="mb-2">
+            <span class="inline-block px-2 py-1 bg-primary/80 text-white text-xs font-medium rounded backdrop-blur-sm">
+              {upperHumanize(categories[0])}
+            </span>
+          </div>
+        )
+      } -->
+
+      <!-- 文章标题 -->
+      <h5
+        class="text-md text-white font-normal line-clamp-2 leading-tight mb-1 group-hover:font-bold transition-colors duration-200 text-ellipsis whitespace-nowrap overflow-hidden"
+      >
+        {title}
+      </h5>
+
+      <!-- 发布日期 -->
+      {entryDate && <div class="text-xs text-white/80 mb-1">{entryDate}</div>}
+
+      <!-- 简短描述 -->
+      {
+        showDescription && entryDescription && (
+          <p class="text-xs text-white/90 line-clamp-2 leading-relaxed">
+            {entryDescription}
+          </p>
+        )
+      }
+    </div>
+
+    <!-- 悬停效果指示器 -->
+    <div
+      class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+    >
+      <svg
+        class="w-4 h-4 text-white"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+        ></path>
+      </svg>
+    </div>
+  </a>
+</div>

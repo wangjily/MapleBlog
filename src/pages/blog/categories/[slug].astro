@@ -1,0 +1,169 @@
+---
+import CollectionLayout from "@components/blog/CollectionLayout.astro";
+import { getCollection } from "astro:content";
+import { slugify } from "@lib/textConverter";
+import { getPageSize } from "@lib/config";
+import type { BlogEntry } from "@/types";
+
+// 生成所有分类页面的静态路径和分页
+export async function getStaticPaths() {
+  const allPosts = await getCollection("blog", ({ data }) => {
+    return data.status === "published" && !data.draft;
+  });
+
+  // 收集所有分类及其文章
+  const categoryPosts = new Map<string, any[]>();
+  allPosts.forEach((post: any) => {
+    const postCategories = post.data.categories;
+    if (postCategories && postCategories.toString()) {
+      const categoryName = postCategories.toString();
+      const categorySlug = slugify(categoryName);
+      if (!categoryPosts.has(categorySlug)) {
+        categoryPosts.set(categorySlug, []);
+      }
+      categoryPosts.get(categorySlug)!.push({ post, categoryName });
+    }
+  });
+
+  const paths: any[] = [];
+  const entriesPerPage = getPageSize("blog");
+
+  // 为每个分类生成分页路径
+  categoryPosts.forEach((posts, categorySlug) => {
+    const categoryName = posts[0].categoryName;
+    const sortedPosts = posts
+      .map((p) => p.post)
+      .sort((a, b) => {
+        const dateA = a.data.publishedAt || a.data.createdAt;
+        const dateB = b.data.publishedAt || b.data.createdAt;
+        if (!dateA || !dateB) return 0;
+        return new Date(dateB).getTime() - new Date(dateA).getTime();
+      });
+    const paginatedPosts = sortedPosts.slice(0, entriesPerPage);
+    const pageProps = {
+      categoryName,
+      categoryPosts: paginatedPosts,
+      currentPageIndex: 1,
+      pageCount: Math.ceil(sortedPosts.length / entriesPerPage),
+      totalArticleCount: sortedPosts.length,
+    };
+    paths.push({
+      params: {
+        slug: categorySlug,
+        page: "1",
+      },
+      props: pageProps,
+    });
+  });
+  return paths;
+}
+
+const {
+  categoryName,
+  categoryPosts,
+  pageCount,
+  currentPageIndex,
+  totalArticleCount,
+} = Astro.props;
+
+console.log("当前页面数据：", categoryPosts);
+
+const { slug, page = "1" } = Astro.params;
+// 转换为组件需要的格式
+const entries: BlogEntry[] = categoryPosts.map((post: any) => ({
+  id: post.id,
+  // slug: post.id,
+  collection: "blog",
+  body: post.body,
+  data: {
+    title: post.data.title,
+    description: post.data.description,
+    image: post.data.image,
+    imageAlt: post.data.imageAlt || `${post.data.title} - 特色图片`,
+    author: post.data.author,
+    publishedAt: post.data.publishedAt || post.data.createdAt,
+    updatedAt: post.data.updatedAt,
+    categories: post.data.categories,
+    tags: post.data.tags || [],
+    featured: post.data.featured,
+    status: post.data.status,
+    draft: post.data.draft,
+    recommended: post.data.recommended,
+    views: post.data.views,
+    hideToc: post.data.hideToc,
+  },
+}));
+
+const allPosts = await getCollection("blog", ({ data }) => {
+  return data.status === "published" && !data.draft;
+});
+// 生成分类统计数据
+const categoryStats = new Map<string, number>();
+allPosts.forEach((post) => {
+  if (post.data.categories) {
+    const cat = post.data.categories;
+    if (cat && cat.toString()) {
+      categoryStats.set(
+        cat.toString(),
+        (categoryStats.get(cat.toString()) || 0) + 1,
+      );
+    }
+  }
+});
+
+const categories = Array.from(categoryStats.entries())
+  .map(([name, count]) => ({
+    name,
+    slug: slugify(name),
+    count,
+  }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+// 生成标签数据
+const tagStats = new Map<string, number>();
+allPosts.forEach((post) => {
+  if (post.data.tags && Array.isArray(post.data.tags)) {
+    post.data.tags.forEach((tag) => {
+      tagStats.set(tag, (tagStats.get(tag) || 0) + 1);
+    });
+  }
+});
+const tags = Array.from(tagStats.keys())
+  .map((name) => ({
+    name,
+    slug: slugify(name),
+  }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+// 创建entryIndex对象
+const entryIndex: BlogEntry = {
+  id: "blog-category",
+  collection: "blog" as const,
+  data: {
+    title: categoryName,
+    description: `${categoryName}分类下的文章`,
+    categories: categories.map((cat) => cat.name),
+    status: "published" as const,
+    draft: false,
+    imageAlt: "博客分类页面",
+    featured: false,
+    recommended: false,
+    views: 0,
+    hideToc: true,
+    publishedAt: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+};
+---
+
+<CollectionLayout
+  entryIndex={entryIndex}
+  entries={entries}
+  tags={tags.map((tag) => tag.name)}
+  categories={categories}
+  pageIndex={currentPageIndex}
+  pageCount={pageCount}
+  allBlogCount={totalArticleCount}
+  basePath={`/blog/categories/${slug}`}
+/>

@@ -1,0 +1,138 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { plainify } from "@lib/textConverter";
+import { FaRegCalendarAlt, FaMapMarkerAlt, FaSmile } from "react-icons/fa";
+import { formatDate } from "@lib/formatDate";
+import { Image } from "astro:assets";
+import defaultImage from "@assets/site-avatar.png";
+import LiquidGlass from "@components/common/LiquidGlassLess.astro";
+import { slugify } from "@lib/textConverter";
+
+interface Props {
+  entry: CollectionEntry<"notes">;
+}
+
+const { entry }: Props = Astro.props;
+const { title, description, createdAt, tags, images, mood, location } =
+  entry.data;
+
+const slug = slugify(entry.data.title);
+const entryDate = createdAt ? formatDate(createdAt) : null;
+// 安全地获取内容预览，确保entry.body存在
+const contentPreview = entry.body
+  ? plainify(entry.body).slice(0, 150) +
+    (plainify(entry.body).length > 150 ? "..." : "")
+  : "";
+
+---
+
+<LiquidGlass
+  heavy
+  wrapperClass="dock rounded-lg my-4 pl-0 bg-gradient-to-br gradient shadow-lg hover:shadow-xl hover:scale-[1.01]"
+  textClass="h-full"
+  animation="fadeRight"
+>
+  <div class="p-4">
+    <!-- 作者信息和发布时间 -->
+    <div class="flex items-center mb-4">
+      <div
+        class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700"
+      >
+        <img
+          src={defaultImage.src}
+          alt="作者头像"
+          class="w-full h-full object-cover"
+        />
+      </div>
+      <div class="ml-3">
+        <h4 class="font-bold">Maple</h4>
+        <div class="flex items-center text-xs text-gray-700 dark:text-gray-400">
+          {
+            entryDate && (
+              <span class="flex items-center">
+                <FaRegCalendarAlt className="mr-1" />
+                {entryDate}
+              </span>
+            )
+          }
+          {
+            location && (
+              <span class="flex items-center ml-2">
+                <FaMapMarkerAlt className="mr-1" />
+                {location}
+              </span>
+            )
+          }
+          {
+            mood && (
+              <span class="flex items-center ml-2">
+                <FaSmile className="mr-1" />
+                {mood}
+              </span>
+            )
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- 内容区域 -->
+    <div class="mb-4">
+      <!-- 标题 -->
+      <h3
+        class="mb-2 text-xl font-bold text-txt-p dark:text-darkmode-txt-p leading-tight"
+      >
+        <a
+          href={`/notes/${slug}`}
+          class="hover:text-primary transition-colors duration-200"
+        >
+          {title}
+        </a>
+      </h3>
+
+      <!-- 内容预览 -->
+      <a href={`/notes/${slug}`} class="block">
+        <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+          {description || contentPreview}
+        </p>
+      </a>
+
+      <!-- 图片区域 - 多图模式 -->
+      {
+        images && images.length > 0 && (
+          <div class="relative flex flex-wrap gap-4 rounded-lg mb-3">
+            {images.map((image) => (
+              <a href={`/notes/${slug}`} class="block">
+                <Image
+                  class="w-full h-full rounded-md md:rounded-lg shadow-lg object-cover max-w-[100px] md:max-w-[200px] max-h-[100px] md:max-h-[200px] hover:scale-105 transition-transform duration-500"
+                  src={image.src}
+                  alt={image.alt}
+                  width={300}
+                  height={300}
+                  quality={90}
+                  format="webp"
+                  loading="lazy"
+                />
+              </a>
+            ))}
+          </div>
+        )
+      }
+
+      <!-- 标签 -->
+      {
+        tags && tags.length > 0 && (
+          <div class="flex flex-wrap gap-2 ">
+            {tags.map((tag) => (
+              <a
+                href={`/notes/tags/${tag}`}
+                class="px-2 py-1 glass-l text-xs text-gray-900/50 rounded-full hover:bg-white/40 transition-colors duration-300 dark:text-gray-200/60"
+              >
+                #{tag}
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </div>
+</LiquidGlass>

@@ -1,0 +1,133 @@
+---
+import type { SocialLinks } from "@/types";
+import { SiXiaohongshu } from "react-icons/si";
+import {
+  FaEnvelope,
+  FaGithub,
+  FaInstagram,
+  FaGlobe,
+  FaWeixin,
+  FaRss,
+} from "react-icons/fa";
+import GlassButton from "@components/ui/GlassButton.astro";
+
+interface Props {
+  links?: SocialLinks;
+}
+
+const { links } = Astro.props;
+
+const liClass = "inline-block px-1 intersect:animate-fade opacity-0";
+const iconClass =
+  "glass-l hover:glass rounded text-txt-light dark:text-darkmode-txt-p flex h-9 w-9 items-center justify-center text-center transition duration-300";
+---
+
+{
+  links && (
+    <ul class="py-2 flex items-center">
+      {links.wechat && (
+        <li class={liClass}>
+          <a href={links.wechat}>
+            <GlassButton
+              id="wechatIcon"
+              variant="info"
+              size="sm"
+              iconPosition="left"
+              title="微信"
+              className="min-w-10 justify-center"
+            >
+              <span class="sr-only">公众号</span>
+              <FaWeixin className="w-6 h-6   dark:hover:text-green-600 hover:text-green-600 transition duration-300" />
+            </GlassButton>
+          </a>
+        </li>
+      )}
+      {links.xhs && (
+        <li class={liClass}>
+          <a href={links.xhs}>
+            <GlassButton
+              id="xhs"
+              variant="info"
+              size="sm"
+              iconPosition="left"
+              title="小红书"
+              className="min-w-10 justify-center"
+            >
+              <span class="sr-only">小红书</span>
+              <SiXiaohongshu className="w-6 h-6  dark:hover:text-red-600 hover:text-red-600 transition duration-300" />
+            </GlassButton>
+          </a>
+        </li>
+      )}
+      {links.email && (
+        <li class={liClass}>
+          <a href={`mailto:${links.email}`}>
+            <GlassButton
+              id="email"
+              variant="info"
+              size="sm"
+              iconPosition="left"
+              title="Email"
+              className="min-w-10 justify-center"
+            >
+              <span class="sr-only">Email</span>
+              <FaEnvelope className="w-6 h-6  dark:hover:text-yellow-200 hover:text-yellow-200 transition duration-300" />
+            </GlassButton>
+          </a>
+        </li>
+      )}
+      {links.github && (
+        <li class={liClass}>
+          <a href={links.github}>
+            <GlassButton
+              id="github"
+              variant="info"
+              size="sm"
+              iconPosition="left"
+              title="GitHub"
+              className="min-w-10 justify-center"
+            >
+              <span class="sr-only">GitHub</span>
+              <FaGithub className="w-6 h-6  dark:hover:text-black hover:text-black transition duration-300" />
+            </GlassButton>
+          </a>
+        </li>
+      )}
+      {/* {links.website && (
+        <li class={liClass}>
+          <a href={links.website}>
+            <GlassButton
+              id="website"
+              variant="info"
+              size="sm"
+              iconPosition="left"
+              title="Website"
+              className="min-w-10 justify-center p-1"
+            >
+              <span class="sr-only">Website</span>
+              <FaGlobe className="w-6 h-6  dark:hover:text-blue-600 hover:text-blue-600 transition duration-300" />
+            </GlassButton>
+          </a>
+        </li>
+      )} */}
+      {links.rss && (
+        <li class={liClass}>
+          <a href={links.rss}>
+            <GlassButton
+              id="rss"
+              variant="info"
+              size="sm"
+              iconPosition="left"
+              title="RSS"
+              className="min-w-10 justify-center"
+            >
+              <span class="sr-only">RSS</span>
+              <FaRss className="w-6 h-6  dark:hover:text-blue-600 hover:text-blue-600 transition duration-300" />
+            </GlassButton>
+          </a>
+        </li>
+      )}
+    </ul>
+  )
+}
+

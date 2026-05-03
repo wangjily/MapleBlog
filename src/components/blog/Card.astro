@@ -1,0 +1,150 @@
+---
+import type { BlogEntry } from "@/types";
+import { plainify, slugify } from "@lib/textConverter";
+import { FaRegCalendarAlt } from "react-icons/fa";
+import readingTime from "@lib/readingTime";
+import { formatDate } from "@lib/formatDate";
+import PlaceholderImage from "@components/blog/PlaceholderImage.astro";
+
+interface Props {
+  entry: BlogEntry;
+}
+
+const { entry }: Props = Astro.props;
+const { title, description, createdAt, categories, tags, image, imageAlt } =
+  entry.data;
+
+const descriptionLength = 200;
+
+// 从 entry.assetImports 获取原始图片文件名
+let imageUrl: string | null = null;
+const assetImports = (entry as any).assetImports || [];
+if (assetImports.length > 0) {
+  const originalPath = assetImports[0]; // e.g., "./shangluoshan.jpg"
+  const match = originalPath.match(/([^\/]+\.(jpg|jpeg|png|gif|webp))$/i);
+  if (match) {
+    imageUrl = `/uploads/${match[1]}`;
+  }
+}
+
+const hasCustomImage = !!imageUrl;
+const displayImageAlt = imageAlt || `${title} - 默认图片`;
+
+const entryDate = createdAt ? formatDate(createdAt) : null;
+const entryReadingTime = readingTime(entry.body!, 1); // 使用默认复杂度1
+const entryDescription =
+  description || plainify(entry.body!.slice(0, descriptionLength));
+---
+
+<div
+  class="glass-t border border-slate-300 dark:border-slate-700 h-full my-2 pl-0 rounded-[25px] overflow-hidden transition-all duration-300 group"
+>
+  <div
+    class="flex flex-col h-full rounded-[25px]
+    hover:scale-[1.02] transition-all duration-300  hover:shadow-xl"
+  >
+    <!-- 特色图片展示 -->
+    <div class="relative w-full aspect-[7/3] overflow-hidden rounded-t-[24px]">
+      <a href={`/blog/${entry.id}`} class="block w-full h-full">
+        {hasCustomImage ? (
+          <>
+            <img
+              class="w-full h-full object-cover transition-all duration-500 ease-out group-hover:scale-105"
+              src={imageUrl}
+              alt={displayImageAlt}
+              loading="lazy"
+              decoding="async"
+            />
+            <!-- 简化的渐变遮罩 -->
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-40 group-hover:opacity-20 transition-opacity duration-300"
+            >
+            </div>
+          </>
+        ) : (
+          <div class="w-full h-full transition-all duration-500 ease-out group-hover:scale-105">
+            <PlaceholderImage 
+              title={title}
+              className="w-full h-full rounded-t-[24px]"
+            />
+          </div>
+        )}
+      </a>
+    </div>
+
+    <!-- 内容区域 -->
+    <div class="p-5">
+      <!-- 文章标题 -->
+      <h4
+        class="mb-2 text-lg font-bold text-txt-p dark:text-darkmode-txt-p line-clamp-1 leading-tight"
+      >
+        <a
+          href={`/blog/${entry.id}`}
+          class="hover:text-primary transition-colors duration-200 group-hover:text-primary"
+        >
+          {title}
+        </a>
+      </h4>
+
+      <!-- 元信息 -->
+      <div class="flex flex-wrap items-center gap-2 mb-3 text-xs">
+        {
+          categories && (
+            <div class="flex items-center">
+              {categories.map(
+                (
+                  category: string | undefined,
+                  index: number,
+                  array: (string | undefined)[],
+                ) => (
+                  <a
+                    href={`/blog/categories/${slugify(category ? category : "")}`}
+                    class="text-txt-light dark:text-darkmode-txt-light bg-primary/10 text-primary py-1 pr-2 rounded-full text-sm font-medium hover:bg-primary/20 transition-colors duration-200"
+                  >
+                    {/* {upperHumanize(category)} */}
+                    {category}
+                  </a>
+                ),
+              )}
+            </div>
+          )
+        }
+        {
+          entryDate && (
+            <div class="flex items-center text-txt-light dark:text-darkmode-txt-light">
+              <FaRegCalendarAlt className="mr-1" />
+              <span>{entryDate}</span>
+            </div>
+          )
+        }
+      </div>
+
+      <!-- 文章描述 -->
+      <p
+        class="text-txt-light dark:text-darkmode-txt-light line-clamp-2 leading-relaxed text-sm mb-4"
+      >
+        {entryDescription}
+      </p>
+
+      <!-- 阅读更多链接 -->
+      <a
+        href={`/blog/${entry.id}`}
+        class="inline-flex items-center text-primary hover:text-primary-dark text-md font-medium transition-colors duration-200 group/link"
+      >
+        <span>阅读更多</span>
+        <svg
+          class="ml-1 w-3 h-3 transition-transform duration-200 group-hover/link:translate-x-0.5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"></path>
+        </svg>
+      </a>
+    </div>
+  </div>
+</div>

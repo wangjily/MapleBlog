@@ -1,0 +1,112 @@
+---
+import { Image } from "astro:assets";
+import { FaWeixin, FaGithub, FaEnvelope } from "react-icons/fa";
+import { SiXiaohongshu } from "react-icons/si";
+import defaultImg from "@assets/site-avatar.png";
+import { getEntry } from "astro:content";
+import { getEntries } from "@lib/contentParser";
+import { sortByDate } from "@lib/sortFunctions";
+
+// 获取社交链接
+const socialEntry = await getEntry("social", "-index");
+const socialLinks = socialEntry?.data.platforms;
+
+// 获取所有博客文章
+const allPosts = await getEntries("blog", sortByDate);
+---
+
+<div class="author-profile">
+  <div class="relative">
+    <!-- 装饰性背景 -->
+    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 rounded-2xl blur-xl"></div>
+    
+    <div class="relative ">
+      <div class="flex flex-col items-center space-y-4">
+        <!-- 头像区域 -->
+        {
+          defaultImg && (
+            <div class="relative group">
+              <!-- 动态光环效果 -->
+              <div class="absolute -inset-2 bg-gradient-to-r from-orange-400 via-purple-500 to-blue-500 rounded-full blur-lg opacity-20 group-hover:opacity-40 transition-all duration-500 animate-pulse"></div>
+              <!-- 外圈装饰 -->
+              <div class="absolute -inset-1 bg-gradient-to-r from-orange-400 via-purple-500 to-blue-500 rounded-full opacity-60 group-hover:opacity-80 transition-all duration-300"></div>
+              <Image
+                class="relative w-24 h-24 lg:w-28 lg:h-28 rounded-full border-2 border-white/50 dark:border-gray-300/30 shadow-2xl transform group-hover:scale-105 transition-all duration-300 bg-white dark:bg-gray-800"
+                src={defaultImg}
+                alt="Maple的头像"
+                width={112}
+                height={112}
+                loading="eager"
+                format="webp"
+                quality={90}
+                decoding="async"
+                fetchpriority="high"
+              />
+            </div>
+          )
+        }
+        
+        <!-- 个人信息区域 -->
+        <div class="text-center space-y-3">
+          <!-- 名字和徽章 -->
+          <div class="flex flex-col items-center gap-3">
+            <h1 class="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              MAPLE
+            </h1>
+            <div class="flex justify-center gap-2">
+              <span class="px-2 py-1 text-xs font-medium bg-purple-500/20 text-purple-600 dark:text-purple-400 rounded-full border border-purple-500/30">
+                博主
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", async function () {
+    // 动态导入提示工具
+    const { showInfo } = await import("@lib/toastUtils");
+    
+    const showWechatBtn = document.getElementById("showWechatBtn");
+    if (showWechatBtn) {
+      showWechatBtn.addEventListener("click", () => {
+        showInfo(
+          `<img src="${showWechatBtn.getAttribute("data-link")}" alt="wechat" />`,
+          "扫码关注我吧",
+          { position: "top-center", duration: 0 },
+        );
+      });
+    }
+
+    const showEmailBtn = document.getElementById("showEmailBtn");
+    if (showEmailBtn) {
+      showEmailBtn.addEventListener("click", () => {
+        window.open(`mailto:${showEmailBtn.getAttribute("data-link")}`);
+      });
+    }
+    
+    const showGithubBtn = document.getElementById("showGithubBtn");
+    if (showGithubBtn) {
+      showGithubBtn.addEventListener("click", () => {
+        window.open(showGithubBtn.getAttribute("data-link")?.toString());
+      });
+    }
+    
+    const showXhsBtn = document.getElementById("showXhsBtn");
+    if (showXhsBtn) {
+      showXhsBtn.addEventListener("click", () => {
+        window.open(showXhsBtn.getAttribute("data-link")?.toString());
+      });
+    }
+  });
+</script>
+
+<style>
+  .author-profile {
+    min-height: 200px; /* 与文章日历模块保持一致的高度 */
+    @apply flex items-center justify-center;
+  }
+</style>

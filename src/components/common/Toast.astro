@@ -1,0 +1,213 @@
+---
+// 通用提示组件 - 玻璃质感设计
+export interface Props {
+  title?: string;
+  content: string;
+  type?: 'success' | 'info' | 'warning' | 'error';
+  position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center';
+  duration?: number; // 显示时长（毫秒），0 表示不自动消失
+  showIcon?: boolean;
+  closable?: boolean;
+}
+
+const {
+  title,
+  content,
+  type = 'info',
+  position = 'top-right',
+  duration = 3000,
+  showIcon = true,
+  closable = true
+} = Astro.props;
+
+// 根据类型设置颜色和图标
+const typeConfig = {
+  success: {
+    bgColor: 'from-emerald-400/20 to-green-500/20',
+    borderColor: 'border-emerald-400/30',
+    textColor: 'text-emerald-700',
+    icon: '✓'
+  },
+  info: {
+    bgColor: 'from-blue-400/20 to-cyan-500/20',
+    borderColor: 'border-blue-400/30',
+    textColor: 'text-blue-700',
+    icon: 'ℹ'
+  },
+  warning: {
+    bgColor: 'from-amber-400/20 to-orange-500/20',
+    borderColor: 'border-amber-400/30',
+    textColor: 'text-amber-700',
+    icon: '⚠'
+  },
+  error: {
+    bgColor: 'from-red-400/20 to-rose-500/20',
+    borderColor: 'border-red-400/30',
+    textColor: 'text-red-700',
+    icon: '✕'
+  }
+};
+
+const config = typeConfig[type];
+
+// 位置样式
+const positionClasses = {
+  'top-right': 'top-4 right-4',
+  'top-left': 'top-4 left-4',
+  'bottom-right': 'bottom-4 right-4',
+  'bottom-left': 'bottom-4 left-4',
+  'top-center': 'top-4 left-1/2 transform -translate-x-1/2',
+  'bottom-center': 'bottom-4 left-1/2 transform -translate-x-1/2'
+};
+---
+
+<div 
+  class={`toast-container fixed z-50 ${positionClasses[position]} pointer-events-none`}
+  data-duration={duration}
+>
+  <div class={`
+    toast-content pointer-events-auto
+    backdrop-blur-xl bg-gradient-to-br ${config.bgColor}
+    border ${config.borderColor}
+    rounded-2xl shadow-2xl
+    p-4 min-w-[280px] max-w-[400px]
+    transform transition-all duration-500 ease-out
+    hover:scale-105 hover:shadow-3xl
+    animate-slide-in
+  `}>
+    <!-- 装饰性光效 -->
+    <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-white/10 to-transparent opacity-50"></div>
+    
+    <!-- 关闭按钮 -->
+    {closable && (
+      <button 
+        class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/20 hover:bg-white/30 transition-colors duration-200 flex items-center justify-center text-gray-600 hover:text-gray-800"
+        onclick="this.closest('.toast-container').remove()"
+      >
+        <span class="text-xs">×</span>
+      </button>
+    )}
+    
+    <!-- 内容区域 -->
+    <div class="flex items-start gap-3 relative z-10">
+      <!-- 图标 -->
+      {showIcon && (
+        <div class={`
+          flex-shrink-0 w-8 h-8 rounded-full 
+          bg-gradient-to-br ${config.bgColor}
+          border ${config.borderColor}
+          flex items-center justify-center
+          text-lg font-bold ${config.textColor}
+          shadow-lg
+        `}>
+          {config.icon}
+        </div>
+      )}
+      
+      <!-- 文本内容 -->
+      <div class="flex-1 min-w-0">
+        {title && (
+          <h4 class={`font-semibold text-sm ${config.textColor} mb-1 leading-tight`}>
+            {title}
+          </h4>
+        )}
+        <p class="text-gray-700 text-sm leading-relaxed">
+          {content}
+        </p>
+      </div>
+    </div>
+    
+    <!-- 进度条（如果有自动消失时间） -->
+    {duration > 0 && (
+      <div class="absolute bottom-0 left-0 right-0 h-1 bg-white/20 rounded-b-2xl overflow-hidden">
+        <div class={`h-full bg-gradient-to-r ${config.bgColor} animate-progress`} style={`animation-duration: ${duration}ms`}></div>
+      </div>
+    )}
+  </div>
+</div>
+
+<style>
+  /* 滑入动画 */
+  @keyframes slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(-20px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  /* 进度条动画 */
+  @keyframes progress {
+    from {
+      width: 100%;
+    }
+    to {
+      width: 0%;
+    }
+  }
+  
+  .animate-slide-in {
+    animation: slide-in 0.5s ease-out;
+  }
+  
+  .animate-progress {
+    animation: progress linear;
+  }
+  
+  /* 玻璃质感增强 */
+  .toast-content {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  
+  /* 悬停效果 */
+  .toast-content:hover {
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+  
+  /* 响应式调整 */
+  @media (max-width: 640px) {
+    .toast-container {
+      left: 1rem !important;
+      right: 1rem !important;
+      transform: none !important;
+    }
+    
+    .toast-content {
+      min-width: auto;
+      max-width: none;
+    }
+  }
+</style>
+
+<script>
+  // 自动消失逻辑
+  document.addEventListener('DOMContentLoaded', function() {
+    const toasts = document.querySelectorAll('.toast-container');
+    
+    toasts.forEach(toast => {
+      const toastElement = toast as HTMLElement;
+      const duration = parseInt(toastElement.dataset.duration || '0');
+      
+      if (duration > 0) {
+        setTimeout(() => {
+          // 添加淡出动画
+          const content = toast.querySelector('.toast-content') as HTMLElement;
+          if (content) {
+            content.style.transform = 'translateY(-20px) scale(0.95)';
+            content.style.opacity = '0';
+            content.style.transition = 'all 0.3s ease-in';
+            
+            setTimeout(() => {
+              toast.remove();
+            }, 300);
+          }
+        }, duration);
+      }
+    });
+  });
+</script>

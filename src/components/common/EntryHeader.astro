@@ -1,0 +1,197 @@
+---
+import { formatDate } from "@lib/formatDate";
+import readingTime from "@lib/readingTime";
+import {
+  lowerHumanize,
+  upperHumanize,
+  markdownify,
+  slugify,
+} from "@lib/textConverter";
+
+import { Image } from "astro:assets";
+import {
+  FaRegCalendarAlt,
+  FaRegFolder,
+  FaRegUserCircle,
+  FaHashtag,
+  FaRegClock,
+  FaRegEye,
+} from "react-icons/fa";
+import type { GenericEntry, EntryReference, ImageData } from "@/types";
+import LiquidGlassLess from "./LiquidGlassLess.astro";
+import Notice from "./shortcodes/Notice";
+
+interface EntryData {
+  title: string;
+  image?: string;
+  imageAlt?: string;
+  author?: EntryReference;
+  createdAt?: string;
+  pubDate?: string;
+  modDate?: string;
+  categories?: string[];
+  tags?: string[];
+  complexity?: number;
+}
+
+interface Props {
+  entry: GenericEntry;
+  showInfo?: boolean;
+  showImage?: boolean;
+  showTitle?: boolean;
+  showAuthor?: boolean;
+  showDate?: boolean;
+  showPubDate?: boolean;
+  showModDate?: boolean;
+  showReadingTime?: boolean;
+  showCategories?: boolean;
+  showTags?: boolean;
+}
+
+const {
+  entry,
+  showInfo = true,
+  showImage = true,
+  showAuthor = false,
+  showDate = true,
+  showPubDate = false,
+  showModDate = false,
+  showReadingTime = false,
+  showCategories = false,
+  showTags = false,
+}: Props = Astro.props;
+
+const {
+  title,
+  author,
+  categories,
+  tags,
+  image,
+  imageAlt,
+  createdAt,
+  pubDate,
+  modDate,
+  complexity,
+} = entry.data as EntryData;
+
+categories?.sort((a: string, b: string) => a.localeCompare(b));
+tags?.sort((a: string, b: string) => a.localeCompare(b));
+---
+
+<div class="">
+  {
+    showInfo && (
+      <LiquidGlassLess
+        heavy
+        wrapperClass={`${image && showImage ? "dock mb-4 !p-0 overflow-hidden" : "dock mb-4 overflow-hidden"}`}
+        textClass={`${image && showImage ? "" : "border border-white/10 dark:border-white/5"}`}
+      >
+        {/* 背景图片层 */}
+        {image && typeof image === "object" && "src" in image && showImage && (
+          <div class="absolute inset-0">
+            <Image
+              class="w-full h-full object-cover rounded-[35px]"
+              src={image}
+              alt={imageAlt || ""}
+              height={280}
+              width={1200}
+              loading="eager"
+            />
+            {/* 渐变遮罩层，确保文字可读性 */}
+            <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-black/0" />
+          </div>
+        )}
+
+        {/* 内容层 */}
+        <div
+          class={`relative z-10 ${
+            image && showImage
+              ? "p-6 min-h-[280px] flex flex-col justify-end"
+              : "p-4"
+          }`}
+        >
+          <div class={`${image && showImage ? "text-white" : ""}`}>
+            <h1
+              set:html={markdownify(title)}
+              class={`${
+                image && showImage
+                  ? "mb-4 text-white drop-shadow-lg text-shadow-lg text-xl md:text-3xl font-bold"
+                  : "mb-3 text-2xl md:text-3xl font-bold text-gray-900 dark:text-white"
+              }`}
+            />
+            <ul
+              class={`flex flex-wrap gap-4 text-sm ${
+                image && showImage
+                  ? "text-white/90"
+                  : "text-gray-600 dark:text-gray-300"
+              }`}
+            >
+              {author && showAuthor && (
+                <li class="flex items-center gap-1">
+                  <a
+                    href={`/authors/${slugify(author.id)}`}
+                    class="flex items-center gap-1 hover:text-primary transition-colors"
+                  >
+                    <FaRegUserCircle className="text-base" />
+                    <span>{upperHumanize(author.id)}</span>
+                  </a>
+                </li>
+              )}
+              {createdAt && showDate && (
+                <li class="flex items-center gap-1" title="创建日期">
+                  <FaRegCalendarAlt className="text-base" />
+                  <span>{formatDate(createdAt)}</span>
+                </li>
+              )}
+              {pubDate && showPubDate && (
+                <li class="flex items-center gap-1" title="发布日期">
+                  <FaRegCalendarAlt className="text-base" />
+                  <span>Published {formatDate(pubDate)}</span>
+                </li>
+              )}
+              {modDate && showModDate && (
+                <li class="flex items-center gap-1">
+                  <FaRegCalendarAlt className="text-base" />
+                  <span>Updated {formatDate(modDate)}</span>
+                </li>
+              )}
+              {complexity && complexity > 0 && showReadingTime && (
+                <li class="flex items-center gap-1" title="阅读所需时间">
+                  <FaRegClock className="text-base" />
+                  <span>{readingTime(entry.body!, complexity)}</span>
+                </li>
+              )}
+              {categories && showCategories && (
+                <li class="flex items-center gap-2" title="分类">
+                  {categories.map((category: string, index: number) => (
+                    <a
+                      href={`/blog/categories/${slugify(category)}`}
+                      class="flex items-center gap-1 hover:text-primary transition-colors"
+                    >
+                      <FaRegFolder className="text-base" />
+                      <span>{upperHumanize(category)}</span>
+                    </a>
+                  ))}
+                </li>
+              )}
+              {tags && showTags && (
+                <li class="flex items-center gap-2" title="标签">
+                  {tags.map((tag: string, index: number) => (
+                    <a
+                      href={`/blog/tags/${slugify(tag)}`}
+                      class="flex items-center gap-1 hover:text-primary transition-colors"
+                    >
+                      <FaHashtag className="text-base" />
+                      <span>{lowerHumanize(tag)}</span>
+                    </a>
+                  ))}
+                </li>
+              )}
+              {/* 浏览量已取消显示 */}
+            </ul>
+          </div>
+        </div>
+      </LiquidGlassLess>
+    )
+  }
+</div>

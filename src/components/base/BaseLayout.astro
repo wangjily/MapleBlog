@@ -1,0 +1,837 @@
+---
+import { plainify } from "@lib/textConverter";
+import Footer from "@components/base/Footer.astro";
+import Header from "@components/base/Header.astro";
+import "@/styles/main.scss";
+import { ClientRouter } from "astro:transitions";
+import Background from "@/components/base/Background.astro";
+import { Tooltips } from "astro-tooltips";
+import { SITE_INFO } from "@lib/config";
+import { isDevelopment } from "@lib/env";
+
+// types for frontmatters
+export interface Props {
+  title?: string;
+  description?: string | null;
+  image?: string;
+  noindex?: boolean;
+  canonical?: string;
+  keywords?: string;
+}
+
+const { title, description, image, noindex, canonical, keywords } = Astro.props;
+
+// 获取基础设置
+let basicSettings: any = {};
+let seoSettings: any = {};
+let customSettings: any = {};
+
+// 基础设置变量
+// console.log("网站基础信息：", basicSettings);
+const siteTitle = SITE_INFO.SITE_NAME;
+const siteSubTitle = SITE_INFO.SUBNAME;
+const siteImage = SITE_INFO.LOGO_IMAGE || "/favicon.ico";
+const baseUrl = SITE_INFO.URL || "/";
+const siteKeywords = basicSettings?.site_keywords || "";
+const siteTagline = basicSettings?.site_tagline || "";
+
+// SEO设置变量
+const metaTitle = seoSettings?.seo_meta_title || "";
+const metaDescription = description || SITE_INFO.DESCRIPTION;
+const metaKeywords = keywords || SITE_INFO.KEY_WORDS;
+const googleAnalyticsId = SITE_INFO.GOOGLE_ANALYTICS_ID || "";
+const baiduAnalyticsId = SITE_INFO.BAIDU_ANALYTICS_ID || "";
+
+// 自定义代码设置变量
+const customHeaderCode = customSettings?.custom_header_code || "";
+const customFooterCode = customSettings?.custom_footer_code || "";
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- favicon -->
+    <link
+      rel="logo-192x192"
+      sizes="180x180"
+      href="/favicon/logo-192x192.svg"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      sizes="32x32"
+      href="/favicon/favicon-32x32.svg"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      sizes="16x16"
+      href="/favicon/favicon-16x16.svg"
+    />
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <!-- RSS Feed -->
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="/rss.xml" />
+
+    <meta name="theme-name" content="pages" />
+    <meta name="msapplication-TileColor" content="#000000" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#fff"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#000"
+    />
+    <meta name="generator" content={Astro.generator} />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+
+    <title>
+      {title ? plainify(title) + " | " : ""}{siteTitle + " | " + siteSubTitle}
+    </title>
+
+    {canonical && <link rel="canonical" href={canonical} item-prop="url" />}
+
+    <meta
+      name="description"
+      content={plainify(description ? description : metaDescription)}
+    />
+    {metaKeywords && <meta name="keywords" content={metaKeywords} />}
+
+    <meta
+      property="og:title"
+      content={`${plainify(metaTitle + " " + siteTagline)}`}
+    />
+    <meta
+      property="og:description"
+      content={plainify(description ? description : metaDescription)}
+    />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:url"
+      content={`${baseUrl}/${Astro.url.pathname.replace("/", "")}`}
+    />
+    <meta
+      property="og:image"
+      content={`${baseUrl}${image ? image : siteImage}`}
+    />
+
+    <meta
+      name="twitter:title"
+      content={`${plainify(metaTitle + " " + siteTagline)}`}
+    />
+    <meta
+      name="twitter:description"
+      content={plainify(description ? description : metaDescription)}
+    />
+    <meta
+      name="twitter:image"
+      content={`${baseUrl}${image ? image : siteImage}`}
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- DNS预连接和预取优化 -->
+    <!-- <link rel="preconnect" href="https://fontsapi.zeoseven.com" crossorigin /> -->
+    <!-- <link rel="preconnect" href="https://fontsapi-storage.zeoseven.com" crossorigin> -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link
+      rel="preconnect"
+      href="https://www.googletagmanager.com"
+      crossorigin
+    />
+    <link rel="preconnect" href="https://hm.baidu.com" crossorigin />
+
+    <!-- 预取关键资源 -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+
+    <!-- Katex -->
+    <link
+      rel="preload"
+      as="style"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css"
+      integrity="sha512-fHwaWebuwA7NSF5Qg/af4UeDx9XqUpYpOGgubo3yWu+b2IQR4UeQwbb42Ti7gVAjNtVoI/I9TEoYeu9omwcC6g=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+      onload="this.rel='stylesheet'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css"
+        integrity="sha512-fHwaWebuwA7NSF5Qg/af4UeDx9XqUpYpOGgubo3yWu+b2IQR4UeQwbb42Ti7gVAjNtVoI/I9TEoYeu9omwcC6g=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+      />
+    </noscript>
+    <!-- 预加载关键脚本 -->
+    <link
+      rel="preload"
+      as="script"
+      href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"
+      integrity="sha512-LQNxIMR5rXv7o+b1l8+N1EZMfhG7iFZ9HhnbJkTp4zjNr5Wvst75AqUeFDxeRUa7l5vEDyUiAip//r+EFLLCyA=="
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"
+      integrity="sha512-LQNxIMR5rXv7o+b1l8+N1EZMfhG7iFZ9HhnbJkTp4zjNr5Wvst75AqUeFDxeRUa7l5vEDyUiAip//r+EFLLCyA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+      defer></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+      integrity="sha512-iWiuBS5nt6r60fCz26Nd0Zqe0nbk1ZTIQbl3Kv7kYsX+yKMUFHzjaH2+AnM6vp2Xs+gNmaBAVWJjSmuPw76Efg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+      defer></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/twikoo@1.6.44/dist/twikoo.min.js"
+      integrity="sha384-dZ/hSVfTPHuzXyECOYCetAvMd0cgqWxN5Fh+mwo86PV4GdU9xgQ/MNzh/YM/lotR"
+      crossorigin="anonymous"
+      defer></script>
+    <!-- https://docs.astro.build/en/guides/view-transitions -->
+    <ClientRouter fallback="swap" />
+    <Tooltips interactive={false} delay={[100, 50]} />
+
+    <!-- Google Analytics - 仅在生产环境加载 -->
+    {
+      !isDevelopment() && googleAnalyticsId && (
+        <>
+          <script
+            async
+            src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
+          />
+          <script
+            set:html={`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${googleAnalyticsId}');
+        `}
+          />
+        </>
+      )
+    }
+
+    <!-- 百度统计 - 仅在生产环境加载 -->
+    {
+      !isDevelopment() && baiduAnalyticsId && (
+        <script
+          set:html={`
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?${baiduAnalyticsId}";
+          var s = document.getElementsByTagName("script")[0]; 
+          s.parentNode.insertBefore(hm, s);
+        })();
+      `}
+        />
+      )
+    }
+    <meta name="baidu-site-verification" content="codeva-RmOcCYpW8H" />
+    <!-- 自定义头部代码 -->
+    {customHeaderCode && <Fragment set:html={customHeaderCode} />}
+
+    <!-- 页面切换动画样式 -->
+    <style>
+      /* 页面切换加载动画 */
+      .page-loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(20px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transition:
+          opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+          visibility 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .page-loading.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .dark .page-loading {
+        background: linear-gradient(
+          135deg,
+          rgba(60, 60, 60, 0.9),
+          rgba(19, 19, 19, 0.9)
+        );
+      }
+
+      /* 加载动画容器 - 创意风格 */
+      .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 3rem 2.5rem;
+        animation: containerBounce 2s ease-in-out infinite;
+        transform-style: preserve-3d;
+      }
+
+      /* 主加载动画 - 创意风格 */
+      .loading-spinner {
+        width: 3rem;
+        height: 3rem;
+        position: relative;
+        animation: spinBounce 1.5s ease-in-out infinite;
+      }
+
+      .loading-spinner::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 4px solid transparent;
+        border-top: 4px solid #19dab5;
+        border-right: 4px solid #2c3e50;
+        border-radius: 50%;
+        animation: rainbowSpin 2s linear infinite;
+      }
+
+      .loading-spinner::after {
+        content: "";
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        width: calc(100% - 12px);
+        height: calc(100% - 12px);
+        border: 3px solid transparent;
+        border-bottom: 4px solid #21a6ff;
+        border-left: 4px solid #ffa508;
+        border-radius: 50%;
+        animation: rainbowSpin 1.5s linear infinite reverse;
+      }
+
+      .dark .loading-spinner::before {
+        border-top: 4px solid #16a085;
+        border-right: 4px solid #2c3e50;
+      }
+
+      .dark .loading-spinner::after {
+        border-bottom: 4px solid #3498db;
+        border-left: 4px solid #16a085;
+      }
+
+      /* 加载文字 - 彩虹渐变 */
+      .loading-text {
+        font-size: 1rem;
+        background: linear-gradient(
+          45deg,
+          #09141f,
+          #1b3d5e,
+          #195b87,
+          #0a8de4,
+          #dbf1ff,
+          #0dc3ae,
+          #23277d,
+          #170339
+        );
+        background-size: 300% 300%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        animation:
+          textPulse 2s ease-in-out infinite,
+          gradientMove 3s ease-in-out infinite;
+        text-shadow: 0 0 20px rgba(255, 107, 157, 0.3);
+        transition: opacity 0.3s ease;
+        min-height: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .dark .loading-text {
+        background: linear-gradient(
+          45deg,
+          #042545,
+          #446a90,
+          #2fa9fa,
+          #1d84c9,
+          #dbf1ff,
+          #11ad8e,
+          #2b3876
+        );
+        background-size: 300% 300%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 0 25px rgba(255, 139, 171, 0.4);
+      }
+
+      /* 进度条 - 彩虹风格 */
+      .loading-progress {
+        width: 8rem;
+        height: 0.25rem;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 0.125rem;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+
+      .loading-progress::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          #ff6b9d,
+          #4ecdc4,
+          #45b7d1,
+          #96ceb4,
+          #feca57
+        );
+        border-radius: 0.125rem;
+        animation:
+          progress 2.5s ease-in-out infinite,
+          rainbowShift 3s ease-in-out infinite;
+        box-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
+      }
+
+      .dark .loading-progress {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .dark .loading-progress::after {
+        background: linear-gradient(
+          90deg,
+          #ff8fab,
+          #6ee5d8,
+          #5bc5e5,
+          #a8d8c8,
+          #fed36a
+        );
+        box-shadow: 0 0 15px rgba(255, 139, 171, 0.6);
+      }
+
+      @keyframes rainbowShift {
+        0%,
+        100% {
+          filter: hue-rotate(0deg);
+        }
+        50% {
+          filter: hue-rotate(180deg);
+        }
+      }
+
+      @keyframes rainbowSpin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes spinBounce {
+        0%,
+        100% {
+          transform: scale(1) rotate(0deg);
+        }
+        25% {
+          transform: scale(1.1) rotate(90deg);
+        }
+        50% {
+          transform: scale(0.9) rotate(180deg);
+        }
+        75% {
+          transform: scale(1.05) rotate(270deg);
+        }
+      }
+
+      @keyframes textPulse {
+        0%,
+        100% {
+          opacity: 0.7;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.05);
+        }
+      }
+
+      @keyframes containerBounce {
+        0%,
+        100% {
+          transform: translateY(0px) scale(1);
+        }
+        25% {
+          transform: translateY(-3px) scale(1.02);
+        }
+        50% {
+          transform: translateY(-5px) scale(1.05);
+        }
+        75% {
+          transform: translateY(-2px) scale(1.02);
+        }
+      }
+
+      @keyframes progress {
+        0% {
+          width: 0%;
+        }
+        30% {
+          width: 40%;
+        }
+        60% {
+          width: 70%;
+        }
+        100% {
+          width: 100%;
+        }
+      }
+
+      @keyframes gradientMove {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+
+      /* 页面过渡动画 */
+      html {
+        view-transition-name: root;
+      }
+
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation-duration: 0.3s;
+      }
+
+      ::view-transition-old(root) {
+        animation-name: fade-out;
+      }
+
+      ::view-transition-new(root) {
+        animation-name: fade-in;
+      }
+
+      @keyframes fade-out {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
+
+      @keyframes fade-in {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+    </style>
+
+    <!-- Supabase 已移除：不再加载全局客户端 -->
+  </head>
+  <body>
+    <!-- SVG 滤镜定义 - 必须在使用前定义 -->
+    <svg style="position: absolute; width: 0; height: 0; pointer-events: none;">
+      <defs>
+        <filter
+          id="glass-distortion"
+          x="0%"
+          y="0%"
+          width="100%"
+          height="100%"
+          filterUnits="objectBoundingBox"
+        >
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.001 0.004"
+            numOctaves="1"
+            seed="17"
+            result="turbulence"></feTurbulence>
+          <!-- Liked Seeds: 5, 14, 17 -->
+
+          <feComponentTransfer in="turbulence" result="mapped">
+            <feFuncR type="gamma" amplitude="1" exponent="10" offset="0.5"
+            ></feFuncR>
+            <feFuncG type="gamma" amplitude="0" exponent="1" offset="0"
+            ></feFuncG>
+            <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5"
+            ></feFuncB>
+          </feComponentTransfer>
+
+          <feGaussianBlur in="turbulence" stdDeviation="3" result="softMap"
+          ></feGaussianBlur>
+
+          <feSpecularLighting
+            in="softMap"
+            surfaceScale="5"
+            specularConstant="1"
+            specularExponent="100"
+            lighting-color="white"
+            result="specLight"
+          >
+            <fePointLight x="-200" y="-200" z="300"></fePointLight>
+          </feSpecularLighting>
+
+          <feComposite
+            in="specLight"
+            operator="arithmetic"
+            k1="0"
+            k2="1"
+            k3="1"
+            k4="0"
+            result="litImage"></feComposite>
+
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="softMap"
+            scale="100"
+            xChannelSelector="R"
+            yChannelSelector="G"></feDisplacementMap>
+        </filter>
+      </defs>
+    </svg>
+
+    <!-- 页面加载动画 -->
+    <div class="page-loading">
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loading-text">加载中...</div>
+        <div class="loading-progress"></div>
+      </div>
+    </div>
+
+    <Background />
+    <Header />
+    <main id="main-content" class="flex-1 pb-16 md:pb-36">
+      <slot />
+    </main>
+    <Footer />
+    <!-- <ObserverScript /> -->
+    <!-- KaTeX 初始化脚本 -->
+    <script>
+      // 安全的 KaTeX 渲染函数
+      function renderMathSafely() {
+        if (
+          typeof (window as any).renderMathInElement !== "undefined" &&
+          document.body
+        ) {
+          try {
+            (window as any).renderMathInElement(document.body, {
+              delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true },
+              ],
+              throwOnError: false,
+            });
+          } catch (error) {
+            console.warn("KaTeX rendering failed:", error);
+          }
+        }
+      }
+
+      // 页面加载完成后渲染
+      document.addEventListener("DOMContentLoaded", renderMathSafely);
+
+      // Astro 页面切换后重新渲染
+      document.addEventListener("astro:page-load", renderMathSafely);
+
+      // 兼容性：如果 DOMContentLoaded 已经触发
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", renderMathSafely);
+      } else {
+        renderMathSafely();
+      }
+    </script>
+
+    <!-- 页面跳转等待动画脚本 -->
+    <script>
+      // 页面加载动画控制
+      let loadingTimeout: NodeJS.Timeout | null = null;
+
+      // 随机加载文案
+      const loadingTexts = [
+        "✨ 魔法正在施展中...",
+        "🌈 彩虹桥搭建中...",
+        "🎨 创意正在迸发...",
+        "🚀 即将起飞...",
+        "💫 星辰大海等你来...",
+        "🌹 精彩内容准备中...",
+        "🌟 闪亮登场倒计时...",
+        "🎪 奇妙之旅即将开始...",
+        "🎶 美妙旋律响起...",
+        "🌸 花朵正在绽放...",
+        "🦋 蝴蝶翩翩起舞...",
+        "🌙 月光洒向大地...",
+      ];
+
+      function getRandomLoadingText() {
+        return loadingTexts[Math.floor(Math.random() * loadingTexts.length)];
+      }
+
+      function updateLoadingText() {
+        const textElement = document.getElementById("loading-text");
+        if (textElement) {
+          textElement.textContent = getRandomLoadingText();
+        }
+      }
+
+      function showPageLoading(delay = 0) {
+        // 清除之前的延迟隐藏
+        if (loadingTimeout) {
+          clearTimeout(loadingTimeout);
+          loadingTimeout = null;
+        }
+
+        const loadingElement = document.querySelector(".page-loading");
+        if (loadingElement) {
+          // 更新加载文案
+          updateLoadingText();
+
+          if (delay > 0) {
+            // 优化：使用requestAnimationFrame替代setTimeout
+            requestAnimationFrame(() => {
+              setTimeout(() => {
+                loadingElement.classList.add("active");
+              }, delay);
+            });
+          } else {
+            // 优化：使用requestAnimationFrame确保在下一帧执行
+            requestAnimationFrame(() => {
+              loadingElement.classList.add("active");
+            });
+          }
+        }
+      }
+
+      function hidePageLoading(delay = 100) {
+        const loadingElement = document.querySelector(".page-loading");
+        if (loadingElement) {
+          // 优化：使用requestAnimationFrame优化动画性能
+          loadingTimeout = setTimeout(() => {
+            requestAnimationFrame(() => {
+              loadingElement.classList.remove("active");
+            });
+            loadingTimeout = null;
+          }, delay);
+        }
+      }
+
+      // 检查是否为快速导航（避免闪烁）
+      function isQuickNavigation() {
+        return (
+          document.readyState === "complete" ||
+          document.readyState === "interactive"
+        );
+      }
+
+      // 监听页面开始加载事件
+      document.addEventListener("astro:before-preparation", () => {
+        // 对于快速导航，稍微延迟显示动画以避免闪烁
+        const delay = isQuickNavigation() ? 150 : 0;
+        showPageLoading(delay);
+      });
+
+      // 监听页面加载完成事件
+      document.addEventListener("astro:page-load", () => {
+        hidePageLoading();
+      });
+
+      // 监听所有链接点击事件
+      document.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement;
+        const link = target.closest("a");
+
+        if (link && link.href) {
+          const url = new URL(link.href);
+          const currentUrl = new URL(window.location.href);
+
+          // 如果是同域名的链接且不是锚点链接
+          if (url.origin === currentUrl.origin && !url.hash) {
+            // 检查是否是下载链接或特殊链接
+            const isDownload =
+              link.hasAttribute("download") ||
+              link.href.match(/\.(pdf|doc|docx|zip|rar|exe|dmg)$/i);
+            const isExternal = link.target === "_blank";
+            const isMailto = link.href.startsWith("mailto:");
+            const isTel = link.href.startsWith("tel:");
+            const isAnchor = link.getAttribute("href")?.startsWith("#");
+
+            // 只对普通的内部页面链接显示加载动画
+            if (
+              !isDownload &&
+              !isExternal &&
+              !isMailto &&
+              !isTel &&
+              !isAnchor
+            ) {
+              // 检查是否是相同页面的链接
+              if (url.pathname !== currentUrl.pathname) {
+                showPageLoading();
+              }
+            }
+          }
+        }
+      });
+
+      // 监听浏览器前进后退按钮
+      window.addEventListener("popstate", () => {
+        showPageLoading();
+      });
+
+      // 监听表单提交（如搜索表单）
+      document.addEventListener("submit", (e) => {
+        const form = e.target as HTMLFormElement;
+        if (form && form.method.toLowerCase() === "get") {
+          showPageLoading();
+        }
+      });
+
+      // 页面初始加载时隐藏加载动画
+      document.addEventListener("DOMContentLoaded", () => {
+        hidePageLoading();
+      });
+
+      // 如果页面已经加载完成（处理缓存情况）
+      if (document.readyState === "complete") {
+        hidePageLoading();
+      }
+
+      // 返回顶部功能已集成到Footer组件中
+    </script>
+
+    <!-- 自定义底部代码 -->
+    {customFooterCode && <Fragment set:html={customFooterCode} />}
+  </body>
+</html>

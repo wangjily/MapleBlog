@@ -1,0 +1,171 @@
+---
+import GlassButton from "../ui/GlassButton.astro";
+
+const { slug } = Astro.props as { slug: string };
+
+const heartIcon = `<svg class="heart-icon w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+</svg>`;
+---
+
+<GlassButton
+  id="like-btn"
+  variant="primary"
+  size="md"
+  icon={heartIcon}
+  iconPosition="left"
+  title="点赞"
+  className="min-w-24 justify-center"
+>
+  <span id="like-count" class="loading-text">--</span>
+</GlassButton>
+
+<style>
+  .loading-text {
+    color: #9ca3af;
+    animation: pulse 2s infinite;
+  }
+
+  /* 点赞状态样式 */
+  :global(.glass-button.liked) {
+    background: rgba(239, 68, 68, 0.25) !important;
+    border-color: rgba(248, 113, 113, 0.5) !important;
+    color: #dc2626 !important;
+    box-shadow:
+      0 6px 12px rgba(220, 38, 38, 0.2),
+      inset 1px 1px 3px rgba(255, 255, 255, 0.4) !important;
+  }
+
+  :global(.glass-button.liked:hover) {
+    background: rgba(239, 68, 68, 0.3) !important;
+    border-color: rgba(248, 113, 113, 0.6) !important;
+    color: #b91c1c !important;
+    box-shadow:
+      0 8px 15px rgba(220, 38, 38, 0.25),
+      inset 1px 1px 3px rgba(255, 255, 255, 0.4) !important;
+  }
+
+  :global(.glass-button.liked .glass-button__icon svg) {
+    fill: currentColor !important;
+    transform: scale(1.1) !important;
+    filter: drop-shadow(0 0 6px rgba(220, 38, 38, 0.6)) !important;
+  }
+
+  :global(.glass-button.liked:hover .glass-button__icon svg) {
+    transform: scale(1.3) rotate(-5deg) !important;
+    filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.7)) !important;
+  }
+
+  /* 深色模式适配 */
+  .dark {
+    :global(.glass-button.liked) {
+      background: rgba(239, 68, 68, 0.3) !important;
+      border-color: rgba(248, 113, 113, 0.4) !important;
+      color: #f87171 !important;
+      box-shadow:
+        0 6px 12px rgba(220, 38, 38, 0.3),
+        inset 1px 1px 3px rgba(255, 255, 255, 0.15) !important;
+    }
+
+    :global(.glass-button.liked:hover) {
+      background: rgba(239, 68, 68, 0.35) !important;
+      border-color: rgba(248, 113, 113, 0.5) !important;
+      color: #fca5a5 !important;
+      box-shadow:
+        0 8px 15px rgba(220, 38, 38, 0.35),
+        inset 1px 1px 3px rgba(255, 255, 255, 0.2) !important;
+    }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  @keyframes heartBeat {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.2); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+
+  .heart-animation { animation: heartBeat 0.6s ease-in-out; }
+</style>
+
+<script type="module" define:vars={{ slug }}>
+  // 本地模式：仅使用 localStorage 记录本设备的点赞状态与计数（0/1）
+  const slugValue = slug;
+  const likeBtn = document.getElementById("like-btn");
+  const likeCount = document.getElementById("like-count");
+  const heartIconEl = likeBtn.querySelector(".heart-icon");
+
+  const LIKE_KEY = `liked-${slugValue}`;
+  const COUNT_KEY = `likes_count::${slugValue}`;
+
+  let isLiked = localStorage.getItem(LIKE_KEY) === "true";
+  let currentLikes = parseInt(localStorage.getItem(COUNT_KEY) || "0", 10) || 0;
+
+  function updateLikeUI() {
+    if (isLiked) {
+      likeBtn.classList.add("liked");
+      likeBtn.title = "取消点赞";
+    } else {
+      likeBtn.classList.remove("liked");
+      likeBtn.title = "点赞";
+    }
+  }
+
+  function renderCount() {
+    likeCount.textContent = String(currentLikes);
+    likeCount.classList.remove("loading-text");
+  }
+
+  function playLikeAnimation() {
+    heartIconEl.classList.add("heart-animation");
+    setTimeout(() => heartIconEl.classList.remove("heart-animation"), 600);
+  }
+
+  function init() {
+    updateLikeUI();
+    renderCount();
+  }
+
+  likeBtn.addEventListener("click", () => {
+    if (likeBtn.disabled) return;
+
+    likeBtn.disabled = true;
+    const wasLiked = isLiked;
+    const isLiking = !wasLiked;
+
+    if (isLiking) {
+      isLiked = true;
+      currentLikes = 1; // 本设备计数
+    } else {
+      isLiked = false;
+      currentLikes = 0;
+    }
+
+    // 更新本地存储
+    try {
+      if (isLiked) {
+        localStorage.setItem(LIKE_KEY, "true");
+        localStorage.setItem(COUNT_KEY, String(currentLikes));
+      } else {
+        localStorage.removeItem(LIKE_KEY);
+        localStorage.setItem(COUNT_KEY, "0");
+      }
+    } catch (e) {
+      console.warn("写入点赞状态失败", e);
+    }
+
+    updateLikeUI();
+    renderCount();
+    playLikeAnimation();
+
+    likeBtn.disabled = false;
+  });
+
+  document.addEventListener("DOMContentLoaded", init);
+  document.addEventListener("astro:page-load", init);
+</script>

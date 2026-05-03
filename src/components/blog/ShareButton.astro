@@ -1,0 +1,161 @@
+---
+import GlassButton from '../ui/GlassButton.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  folder?: string;
+  id?: string;
+}
+
+const { title, description, folder, id }: Props = Astro.props;
+const baseURL = Astro.site;
+const shareUrl = `${baseURL}${folder}/${id}`;
+
+const shareIcon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
+</svg>`;
+---
+
+<GlassButton
+  id="share-btn"
+  variant="secondary"
+  size="md"
+  icon={shareIcon}
+  iconPosition="left"
+  title="分享"
+  className="min-w-24 justify-center"
+>
+  分享
+</GlassButton>
+
+<!-- 提示消息 -->
+<div id="share-toast" class="share-toast hidden">链接已复制到剪贴板！</div>
+
+<style>
+  .share-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #10b981;
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out;
+  }
+
+  .share-toast.show {
+    display: block;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideOut {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+
+  .share-toast.hide {
+    animation: slideOut 0.3s ease-in;
+  }
+</style>
+
+<script type="module" define:vars={{ shareUrl, title }}>
+  const shareBtn = document.getElementById("share-btn");
+  const shareToast = document.getElementById("share-toast");
+
+  // 复制到剪贴板函数
+  async function copyToClipboard(text) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } else {
+        // 降级方案
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        const result = document.execCommand("copy");
+        textArea.remove();
+        return result;
+      }
+    } catch (err) {
+      console.error("复制失败:", err);
+      return false;
+    }
+  }
+
+  // 显示提示消息
+  function showToast() {
+    shareToast.classList.remove("hidden", "hide");
+    shareToast.classList.add("show");
+
+    setTimeout(() => {
+      shareToast.classList.add("hide");
+      setTimeout(() => {
+        shareToast.classList.add("hidden");
+        shareToast.classList.remove("show", "hide");
+      }, 300);
+    }, 2000);
+  }
+
+  // 分享按钮点击事件
+  shareBtn.addEventListener("click", async () => {
+    if (shareBtn.disabled) return;
+
+    shareBtn.disabled = true;
+
+    try {
+      const success = await copyToClipboard(shareUrl);
+      if (success) {
+        showToast();
+      } else {
+        console.error("复制链接失败");
+      }
+    } catch (error) {
+      console.error("分享操作失败:", error);
+    } finally {
+      shareBtn.disabled = false;
+    }
+  });
+
+  // 初始化函数
+  function init() {
+    // 分享按钮初始化完成
+  }
+
+  // Astro 页面导航事件监听
+  document.addEventListener("astro:page-load", init);
+
+  // 兼容首次加载和传统页面跳转
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    // 立即执行初始化
+    init();
+  }
+</script>
