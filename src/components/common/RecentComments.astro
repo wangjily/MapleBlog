@@ -1,14 +1,8 @@
 ---
 import LiquidGlassLess from "@components/common/LiquidGlassLess.astro";
-import { getEntries } from "@lib/contentParser";
-import type { BlogEntry, PagesEntry } from "@/types";
 
-const { limit = 8 } = Astro.props as { limit?: number };
-const allPosts = (await getEntries("blog")) as BlogEntry[];
-const pages = (await getEntries("pages")) as PagesEntry[];
-const titleMap = Object.fromEntries(
-  [...allPosts,...pages].map((p) => [p.id, p.data.title])
-);
+const { repo = "" } = Astro.props as { repo?: string };
+const repoName = repo || "maplezzzzzz/MapleBlog";
 ---
 
 <section class="rounded-lg pt-3">
@@ -16,156 +10,27 @@ const titleMap = Object.fromEntries(
     <h3 class="text-xl font-bold text-txt-p dark:text-darkmode-txt-p">
       最近留言
     </h3>
-    <a href="#comments" class="text-sm text-primary hover:underline">查看全部</a>
   </div>
-  <ul id="recent-comments-list" class="space-y-1"></ul>
+  <div class="text-center py-8 px-4">
+    <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-500/10 mb-4">
+      <svg class="w-7 h-7 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+      </svg>
+    </div>
+    <h4 class="text-lg font-bold text-txt-p dark:text-darkmode-txt-p mb-2">评论区使用 GitHub Discussions</h4>
+    <p class="text-sm text-txt-light dark:text-darkmode-txt-light mb-4">
+      每篇文章底部都有评论区，欢迎留言讨论！
+    </p>
+    <a
+      href={`https://github.com/${repoName}/discussions`}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-full text-sm font-medium hover:bg-blue-600 transition-colors"
+    >
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+      </svg>
+      在 GitHub 查看全部留言
+    </a>
+  </div>
 </section>
-
-<script define:vars={{
-  twikooEnvId: import.meta.env.PUBLIC_TWIKOO_ENV_ID || "",
-  limit,
-  titleMap
-}}>
-  let list = document.getElementById("recent-comments-list");
-  const maxLen = 100;
-
-  function showLoading() {
-    if (!list) return;
-    list.setAttribute('aria-busy', 'true');
-    list.innerHTML = `
-      <li class="py-6">
-        <div class="flex items-center justify-center gap-2 text-slate-500 dark:text-slate-200">
-          <span class="inline-block w-5 h-5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></span>
-          <span>正在加载留言…</span>
-        </div>
-      </li>
-    `;
-  }
-
-  function showError(msg) {
-    if (!list) return;
-    list.removeAttribute('aria-busy');
-    list.innerHTML = `
-      <li class="py-6">
-        <div class="text-center">
-          <p class="text-red-600 dark:text-red-400 mb-2">${msg || "评论获取失败"}</p>
-          <button id="rc-retry-btn" class="text-sm text-primary hover:underline">点击重试</button>
-        </div>
-      </li>
-    `;
-    const btn = document.getElementById("rc-retry-btn");
-    if (btn) { btn.addEventListener("click", load, { once: true }); }
-  }
-
-  function showEmpty() {
-    if (!list) return;
-    list.removeAttribute('aria-busy');
-    list.innerHTML = `
-      <li class="py-6 text-center">
-        <div class="text-slate-400 dark:text-slate-500">
-          <p class="mb-1">还没有留言哦</p>
-          <p class="text-sm">快来留下第一条评论吧</p>
-        </div>
-      </li>
-    `;
-  }
-
-  function stripHtml(s) {
-    try {
-      return (s || "").replace(/<[^>]*>/g, "").trim();
-    } catch (e) {
-      return "";
-    }
-  }
-
-  function pathFromUrl(u) {
-    try {
-      if (u && u.indexOf("/") !== -1) {
-        u = u.split("/").pop();
-      }
-      return decodeURIComponent(u) || u;
-    } catch (e) {
-      return u;
-    }
-  }
-
-  function ensureTwikoo(cb) {
-    if (window.twikoo) { cb(); return; }
-    const s = document.createElement("script");
-    s.src = "https://cdn.jsdelivr.net/npm/twikoo@1.6.44/dist/twikoo.min.js";
-    s.async = true;
-    s.onload = cb;
-    s.onerror = () => showError("评论系统加载失败");
-    document.body.appendChild(s);
-  }
-
-  function render(items) {
-    if (list) { list.removeAttribute('aria-busy'); }
-    if (!items || items.length === 0) {
-      showEmpty();
-      return;
-    }
-    list.innerHTML = "";
-    items.forEach((it, index) => {
-      const url = it.url || it.link || "#comments";
-      const path = pathFromUrl(url);
-      const title = titleMap[path] || path;
-      const full = stripHtml(it.comment || it.content || "");
-      const short = full.length > maxLen ? full.slice(0, maxLen) + "…" : full;
-      const avatar = it.avatar || it.avatarUrl || "/site-avatar.png";
-      const nick = it.nick || it.nickname || "匿名";
-      const time = it.created ? new Date(it.created).toLocaleString("zh-CN") : "";
-
-      const li = document.createElement("li");
-      li.className = "group rounded-[25px] transition-all duration-300 hover:bg-primary/5 p-3";
-      li.style.animationDelay = `${index * 100}ms`;
-      li.innerHTML = `
-        <a class="no-underline hover:text-primary block" href="${url}">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700 flex-shrink-0">
-              <img src="${avatar}" alt="${nick}" class="w-full h-full object-cover" loading="lazy">
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2">
-                <span class="font-medium text-txt-p dark:text-darkmode-txt-p">${nick}</span>
-                <span class="text-xs text-slate-400">${time}</span>
-              </div>
-              <p class="text-sm text-slate-600 dark:text-slate-300 line-clamp-2 mt-1" title="${full.replace(/"/g, '&quot;')}">${short}</p>
-            </div>
-          </div>
-          <div class="mt-2 text-xs text-slate-400 group-hover:text-primary transition-colors truncate">
-            来自：${title}
-          </div>
-        </a>
-      `;
-      list.appendChild(li);
-    });
-  }
-
-  function load() {
-    list = document.getElementById("recent-comments-list");
-    if (!list) return;
-    if (!twikooEnvId || twikooEnvId.includes("example.com")) {
-      showError("请先配置 Twikoo 环境 ID");
-      return;
-    }
-    showLoading();
-    ensureTwikoo(() => {
-      if (!window.twikoo) {
-        showError("评论系统初始化失败");
-        return;
-      }
-      window.twikoo.getRecentComments({ envId: twikooEnvId, pageSize: limit })
-        .then((res) => {
-          const arr = res?.comments || res || [];
-          render(arr);
-        })
-        .catch((err) => {
-          console.error('获取最近评论失败', err);
-          showError("评论获取失败，请稍后重试");
-        });
-    });
-  }
-
-  document.addEventListener("astro:page-load", load);
-</script>
