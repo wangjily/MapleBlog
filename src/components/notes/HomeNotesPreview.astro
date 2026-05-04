@@ -36,9 +36,10 @@ const displayEntries = entries.slice(0, limit);
         const { title, description, createdAt, mood, location } = entry.data;
         const entryDate = createdAt ? formatDate(createdAt) : null;
         // 安全地获取内容预览，确保entry.body存在
-        const contentPreview = entry.body
-          ? plainify(entry.body).slice(0, 100) +
-            (plainify(entry.body).length > 100 ? "..." : "")
+        const rawBody = entry.body || "";
+        const plainBody = rawBody ? plainify(rawBody) : "";
+        const contentPreview = plainBody
+          ? plainBody.slice(0, 100) + (plainBody.length > 100 ? "..." : "")
           : "";
 
         return (

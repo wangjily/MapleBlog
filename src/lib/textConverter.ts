@@ -140,6 +140,7 @@ export const lowerHumanize = (content: string | undefined) => {
 
 // plainify
 export const plainify = (content: string) => {
+  if (!content) return '';
   const parseMarkdown = marked.parse(content);
   const filterBrackets = parseMarkdown.replace(/<\/?[^>]+(>|$)/gm, "");
   const filterSpaces = filterBrackets.replace(/[\r\n]\s*[\r\n]/gm, "");

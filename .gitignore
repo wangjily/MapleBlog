@@ -49,6 +49,7 @@ pids/
 *.pid.lock
 tmp/
 temp/
+data/
 
 # Coverage directory used by tools like istanbul
 coverage/

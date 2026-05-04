@@ -6,12 +6,10 @@ import { Image } from "astro:assets";
 import defaultImage from "@assets/site-avatar.png";
 import LiquidGlass from "@components/common/LiquidGlassLess.astro";
 import { slugify } from "@lib/textConverter";
-import Comment from "@components/base/Comment.astro";
 import {
   FaRegCalendarAlt,
   FaMapMarkerAlt,
   FaSmile,
-  FaRegComment,
   FaRegHeart,
   FaRegBookmark,
   FaShare,
@@ -106,7 +104,7 @@ const { Content } = await render(entry);
               />
             </div>
             <div class="ml-4">
-              <h4 class="font-bold text-lg">Maple</h4>
+              <h4 class="font-bold text-lg">Eternity</h4>
               <div
                 class="flex items-center text-sm text-gray-700 dark:text-gray-100"
               >
@@ -200,13 +198,6 @@ const { Content } = await render(entry);
             <div class="flex justify-around">
 
               <button
-                id="commentBtn"
-                class="flex items-center gap-2 text-gray-700 dark:text-gray-100 hover:text-blue-500 transition-colors"
-              >
-                <FaRegComment />
-                <span>评论</span>
-              </button>
-              <button
                 id="bookmarkBtn"
                 class="flex items-center gap-2 text-gray-700 dark:text-gray-100 hover:text-yellow-500 transition-colors"
               >
@@ -222,17 +213,6 @@ const { Content } = await render(entry);
               </button>
             </div>
           </div>
-        </LiquidGlass>
-
-        <!-- 评论区占位 -->
-        <LiquidGlass
-          heavy
-          containerClass="pb-6 rounded-xl"
-          textClass="p-5"
-        >
-          <h3 class="text-xl font-bold mb-4">评论</h3>
-          <Comment />
-          
         </LiquidGlass>
       </div>
 
@@ -666,14 +646,6 @@ const { Content } = await render(entry);
     }
   }
 
-  // 评论功能
-  function scrollToComments() {
-    const commentSection = document.querySelector("h3");
-    if (commentSection && commentSection.textContent?.includes("评论")) {
-      commentSection.scrollIntoView({ behavior: "smooth" });
-    }
-  }
-
   // 分享功能
   function shareNote() {
     const title = document.title;
@@ -736,10 +708,6 @@ const { Content } = await render(entry);
     const commentBtn = document.getElementById("commentBtn");
     const bookmarkBtn = document.getElementById("bookmarkBtn");
     const shareBtn = document.getElementById("shareBtn");
-
-    if (commentBtn) {
-      commentBtn.addEventListener("click", scrollToComments);
-    }
 
     if (bookmarkBtn) {
       bookmarkBtn.addEventListener("click", toggleBookmark);

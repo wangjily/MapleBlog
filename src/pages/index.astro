@@ -22,7 +22,7 @@ import RecommendedReadCardComponent from "@components/blog/RecommendedReadCard.a
 // 获取所有博客文章并排序
 const allPosts = (await getEntries("blog", sortByDate)) as BlogEntry[];
 const publishedPosts = allPosts
-  .filter((post) => post.data.status === "published")
+  .filter((post) => !post.data.draft)
   .sort((a, b) => {
     const dateA = new Date(a.data.publishedAt || 0);
     const dateB = new Date(b.data.publishedAt || 0);
@@ -81,29 +81,16 @@ const siteStats = await getSiteStats();
 <BaseLayout>
   <div class="container px-3 lg:px-8">
     <!-- Hero Banner -->
-    <section class="rounded-[35px] mb-4">
-      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <!-- 左侧：博主信息 (1/4) -->
+    <section class="mb-4">
+      <div class="grid grid-cols-1 xl:grid-cols-4 gap-6">
+        <!-- 左侧：博主信息 -->
         <div class="xl:col-span-1">
-          <LiquidGlass heavy textClass="h-full">
-            <div class="rounded-[35px] intersect:animate-fadeUp h-full">
-              <AuthorProfile />
-            </div>
-          </LiquidGlass>
+          <AuthorProfile />
         </div>
 
-        <!-- 右侧：文章日历 (3/4) -->
-        <div class="hidden md:block xl:col-span-2 h-full">
-          <LiquidGlass
-            heavy
-            containerClass="h-full"
-            wrapperClass="dock h-full"
-            textClass="p-3"
-          >
-            <div class="rounded-lg intersect:animate-fadeUp h-full">
-              <ArticleCalendar />
-            </div>
-          </LiquidGlass>
+        <!-- 右侧：文章日历 -->
+        <div class="xl:col-span-3">
+          <ArticleCalendar />
         </div>
       </div>
     </section>

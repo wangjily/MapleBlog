@@ -1,0 +1,60 @@
+---
+const envId = import.meta.env.PUBLIC_TWIKOO_ENV_ID || "";
+---
+
+<div id="twikoo" class="twikoo-container"></div>
+
+<script define:vars={{ envId }}>
+  document.addEventListener("astro:page-load", () => {
+    const container = document.getElementById("twikoo");
+    if (!container) return;
+
+    if (!envId || envId === "你的腾讯云开发环境ID") {
+      container.innerHTML = `
+        <div class="text-center py-10 px-4">
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-500/10 mb-4">
+            <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-txt-p dark:text-darkmode-txt-p mb-2">评论区未配置</h3>
+          <p class="text-sm text-txt-light dark:text-darkmode-txt-light mb-1">
+            请访问 <a href="https://twikoo.js.org" target="_blank" rel="noopener" class="text-blue-500 hover:underline">twikoo.js.org</a> 获取配置
+          </p>
+          <p class="text-xs text-txt-light dark:text-darkmode-txt-light/60 mt-2 leading-relaxed">
+            需要在 .env 文件中配置：<br/>
+            <code class="px-1 py-0.5 rounded bg-white/50 dark:bg-black/50 text-xs">PUBLIC_TWIKOO_ENV_ID</code>
+          </p>
+        </div>
+      `;
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://cdn.staticfile.org/twikoo/1.6.39/twikoo.all.min.js";
+    script.async = true;
+
+    script.onload = () => {
+      if (typeof twikoo === "function") {
+        twikoo.init({
+          envId: envId,
+          el: "#twikoo",
+          path: location.pathname,
+          theme: "auto",
+          lang: "zh-CN"
+        });
+      }
+    };
+
+    container.appendChild(script);
+  });
+</script>
+
+<style is:global>
+  #twikoo .twikoo {
+    padding: 1rem 0;
+  }
+  #twikoo .tk-comments-container {
+    margin-top: 1rem;
+  }
+</style>

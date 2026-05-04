@@ -6,7 +6,6 @@ import type { AboutEntry } from "@/types";
 import { render } from "astro:content";
 import LiquidGlassLess from "@components/common/LiquidGlassLess.astro";
 import Social from "@components/common/Social.astro";
-import Comment from "@components/base/Comment.astro";
 import { getEntry } from "astro:content";
 import { SITE_INFO } from "@lib/config";
 
@@ -23,7 +22,7 @@ const socialLinks = socialEntry?.data.platforms;
 
 const startDate = new Date(SITE_INFO.START_DATE);
 const today = new Date();
-const daysRunning = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+const daysRunning = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 ---
 
 <BaseLayout title={title} description={description} image={image?.src}>
@@ -100,9 +99,6 @@ const daysRunning = Math.floor((today.getTime() - startDate.getTime()) / (1000 *
           <p>💡 相信代码改变世界，也相信文字可以传递温度。</p>
         </div>
 
-        <div class="mt-5 pt-4 border-t border-white/10 dark:border-white/5">
-          <Social links={socialLinks} />
-        </div>
       </LiquidGlassLess>
 
       <!-- 关于本站 -->
@@ -142,34 +138,6 @@ const daysRunning = Math.floor((today.getTime() - startDate.getTime()) / (1000 *
     </LiquidGlassLess>
   </section>
 
-  <!-- 留言板模块 -->
-  <section class="container px-3 lg:px-8 pb-8">
-    <LiquidGlassLess heavy textClass="p-5 lg:p-8 rounded-[28px]">
-      <!-- 标题 -->
-      <div class="flex items-center gap-3 mb-5">
-        <div class="w-10 h-10 rounded-full bg-orange-500/15 flex items-center justify-center flex-shrink-0">
-          <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-          </svg>
-        </div>
-        <h2 class="text-lg font-bold text-txt-p dark:text-darkmode-txt-p">给我留言</h2>
-      </div>
-
-      <!-- 提示语卡片 -->
-      <div class="mb-6 p-4 rounded-2xl bg-white/30 dark:bg-black/30 border border-white/20 dark:border-white/10 backdrop-blur-md">
-        <p class="text-sm text-txt-light dark:text-darkmode-txt-light leading-relaxed">
-          💬 欢迎在这里留言！可以聊聊你的想法、提个问题，或者只是打个招呼～
-          <br/>
-          <span class="text-xs opacity-60">文明发言，互相尊重，每一条留言我都会认真看的。</span>
-        </p>
-      </div>
-
-      <!-- 评论区 -->
-      <div class="comments-wrapper">
-        <Comment />
-      </div>
-    </LiquidGlassLess>
-  </section>
 </BaseLayout>
 
 <script>

@@ -57,8 +57,8 @@ export default defineConfig({
       applyBaseStyles: false, // 使用自定义的base样式
     }),
     AutoImport({
-      imports: ["@components/common/Button.astro", "@shortcodes/Accordion", "@shortcodes/Notice", "@shortcodes/Youtube", "@shortcodes/Tabs", "@shortcodes/Tab"]
-    }), 
+      imports: ["@components/common/Button.astro", "@shortcodes/Accordion", "@shortcodes/Notice", "@shortcodes/Youtube", "@shortcodes/Tabs", "@shortcodes/Tab", "@shortcodes/Video"]
+    }),
     mdx()
   ],
   markdown: {

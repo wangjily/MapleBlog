@@ -12,70 +12,90 @@ const { slug, hidden = false } = Astro.props as {
   </svg>
   <span id="view-count-number" class="tabular-nums">--</span>
   <span class="ml-1">次浏览</span>
-  <span class="ml-2 text-xs text-gray-400">(仅当前设备)</span>
 </span>
 
 <script type="module" define:vars={{ slug }}>
   // @ts-nocheck
-  const STORAGE_KEY = `view_count::${slug}`;
-  const DEDUP_MS = 60 * 60 * 1000; // 1 小时去重
+  const DEDUP_KEY = `view_incremented::${slug}`;
+  const DEDUP_MS = 60 * 60 * 1000; // 1 小时去重（同一客户端 1 小时内只计一次）
 
   let countEl = document.getElementById('view-count-number');
 
-  function readState() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return { count: 0, lastViewedAt: 0 };
-      const parsed = JSON.parse(raw);
-      const count = typeof parsed.count === 'number' && parsed.count >= 0 ? parsed.count : 0;
-      const lastViewedAt = typeof parsed.lastViewedAt === 'number' ? parsed.lastViewedAt : 0;
-      return { count, lastViewedAt };
-    } catch {
-      return { count: 0, lastViewedAt: 0 };
-    }
-  }
-
-  function writeState(next) {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch (e) {
-      // localStorage 写入可能失败（无痕模式等），忽略
-      console.warn('写入本地浏览计数失败', e);
-    }
-  }
-
   function renderCount(n) {
-    if (!countEl) {
-      countEl = document.getElementById('view-count-number');
-    }
-    if (countEl) countEl.textContent = String(n);
+    if (countEl) countEl.textContent = String(n ?? 0);
   }
 
-  function incrementIfNeeded() {
+  function getDedupeState() {
+    try {
+      const raw = localStorage.getItem(DEDUP_KEY);
+      if (!raw) return 0;
+      const parsed = JSON.parse(raw);
+      return typeof parsed.ts === 'number' ? parsed.ts : 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  function setDedupeState() {
+    try {
+      localStorage.setItem(DEDUP_KEY, JSON.stringify({ ts: Date.now() }));
+    } catch {
+      // 无痕模式等场景忽略
+    }
+  }
+
+  async function fetchCount() {
+    try {
+      const res = await fetch(`/api/view-count?slug=${encodeURIComponent(slug)}`);
+      if (res.ok) {
+        const data = await res.json();
+        return data.count ?? 0;
+      }
+    } catch {
+      // 网络错误等忽略
+    }
+    return null;
+  }
+
+  async function incrementAndFetch() {
+    const lastTs = getDedupeState();
     const now = Date.now();
-    const { count, lastViewedAt } = readState();
-    if (now - lastViewedAt >= DEDUP_MS) {
-      const next = { count: count + 1, lastViewedAt: now };
-      writeState(next);
-      renderCount(next.count);
-    } else {
-      renderCount(count);
+
+    if (now - lastTs >= DEDUP_MS) {
+      setDedupeState();
+      try {
+        await fetch('/api/view-count', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug }),
+        });
+      } catch {
+        // 忽略
+      }
     }
+
+    return fetchCount();
   }
 
-  function init() {
-    // 初始渲染
-    renderCount(readState().count);
-    // 根据去重规则尝试增加一次
-    incrementIfNeeded();
+  async function init() {
+    const serverCount = await fetchCount();
+    if (serverCount !== null) {
+      renderCount(serverCount);
+    }
+
+    incrementAndFetch().then((count) => {
+      if (count !== null) renderCount(count);
+    });
   }
 
   document.addEventListener('DOMContentLoaded', init);
   document.addEventListener('astro:page-load', init);
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
-      // 页面重新可见时再尝试一次
-      setTimeout(incrementIfNeeded, 200);
+      setTimeout(async () => {
+        const count = await fetchCount();
+        if (count !== null) renderCount(count);
+      }, 200);
     }
   });
 </script>

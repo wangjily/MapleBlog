@@ -1,19 +1,17 @@
 ---
 import ThemeSwitcher from "@components/base/ThemeSwitcher.astro";
 import { IoSearch } from "react-icons/io5";
-import logoImage from "@assets/image/logo.svg";
+import logoImage from "@assets/image/logo.png";
 import LiquidGlass from "@components/common/LiquidGlassLess.astro";
 import GlassButton from "@components/ui/GlassButton.astro";
 import { SITE_INFO } from "@lib/config";
-import { Image } from "astro:assets";
 
 const { pathname } = Astro.url;
 
 const stickyHeader = true;
 
 // 获取网站基本信息
-let siteName = SITE_INFO?.SITE_NAME || ""; // 优先读取配置项，若无则使用默认
-let siteLogoUrl = SITE_INFO?.LOGO_IMAGE || logoImage.src || "";
+const siteName = SITE_INFO?.SITE_NAME || "";
 
 // 静态菜单数据
 const menu = [
@@ -57,16 +55,6 @@ const menu = [
     sort_order: 4,
     children: [],
   },
-  {
-    id: 5,
-    name: "友链",
-    url: "/links",
-    target: "_self",
-    position: "header",
-    parent_id: null,
-    sort_order: 5,
-    children: [],
-  },
 ];
 ---
 
@@ -88,14 +76,11 @@ const menu = [
     <div class="order-0 flex ml-4 items-center">
       <a href="/" class="flex items-center">
         {
-          siteLogoUrl && (
-            <Image
-              src={siteLogoUrl}
+          logoImage && (
+            <img
+              src={logoImage.src}
               alt={siteName}
               class="w-8 h-8 mx-1 rounded-full"
-              width={32}
-              height={32}
-              eagerly-loaded={true}
             />
           )
         }

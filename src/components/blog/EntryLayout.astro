@@ -4,7 +4,6 @@ import { plainify } from "@lib/textConverter";
 import { render, type CollectionEntry } from "astro:content";
 import EntryHeader from "@components/common/EntryHeader.astro";
 import LiquidGlassLess from "@components/common/LiquidGlassLess.astro";
-import Comment from "@components/base/Comment.astro";
 import type { BlogEntry } from "@/types";
 
 interface Props {
@@ -61,10 +60,4 @@ const entryDescription =
     </LiquidGlassLess>
   </section>
 
-  <!-- 评论区 -->
-  <section class="container px-3 lg:px-8 pb-8">
-    <LiquidGlassLess heavy wrapperClass="rounded-[28px]" textClass="p-5 lg:p-8">
-      <Comment />
-    </LiquidGlassLess>
-  </section>
 </BaseLayout>
