@@ -59,7 +59,7 @@ export default defineConfig({
     AutoImport({
       imports: ["@components/common/Button.astro", "@shortcodes/Accordion", "@shortcodes/Notice", "@shortcodes/Youtube", "@shortcodes/Tabs", "@shortcodes/Tab", "@shortcodes/Video"]
     }),
-    mdx()
+    mdx(),
   ],
   markdown: {
     remarkPlugins: [remarkToc, [remarkCollapse, {
