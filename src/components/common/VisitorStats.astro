@@ -1,0 +1,145 @@
+---
+interface StatCard {
+  label: string;
+  value: string;
+  icon: string;
+  color: string;
+  bgGradient: string;
+}
+
+interface Props {
+  showTitle?: boolean;
+  title?: string;
+  compact?: boolean;
+}
+
+const { showTitle = true, title = "访客统计", compact = false } = Astro.props;
+
+const cardColors = [
+  { icon: "👁️", bg: "from-blue-500/10 to-blue-600/5", border: "border-blue-500/30", text: "text-blue-600 dark:text-blue-400" },
+  { icon: "📅", bg: "from-green-500/10 to-green-600/5", border: "border-green-500/30", text: "text-green-600 dark:text-green-400" },
+  { icon: "👤", bg: "from-purple-500/10 to-purple-600/5", border: "border-purple-500/30", text: "text-purple-600 dark:text-purple-400" },
+  { icon: "📄", bg: "from-orange-500/10 to-orange-600/5", border: "border-orange-500/30", text: "text-orange-600 dark:text-orange-400" },
+];
+---
+
+{showTitle && (
+  <div class="text-center mb-4">
+    <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200">{title}</h3>
+    <p class="text-sm text-gray-500 dark:text-gray-400">实时数据统计</p>
+  </div>
+)}
+
+<div
+  id="visitor-stats"
+  class:list={[
+    "grid gap-3",
+    compact ? "grid-cols-2" : "grid-cols-2 md:grid-cols-4"
+  ]}
+  data-stats-url="/api/view-count?stats=true"
+>
+  <div class={`stat-card p-4 rounded-xl bg-gradient-to-br ${cardColors[0].bg} border ${cardColors[0].border} backdrop-blur-sm`}>
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">{cardColors[0].icon}</span>
+      <div class="flex-1 min-w-0">
+        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">总访问量</p>
+        <p class={`stat-value text-xl font-bold tabular-nums ${cardColors[0].text}`}>--</p>
+      </div>
+    </div>
+  </div>
+
+  <div class={`stat-card p-4 rounded-xl bg-gradient-to-br ${cardColors[1].bg} border ${cardColors[1].border} backdrop-blur-sm`}>
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">{cardColors[1].icon}</span>
+      <div class="flex-1 min-w-0">
+        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">今日访问</p>
+        <p class={`stat-value text-xl font-bold tabular-nums ${cardColors[1].text}`}>--</p>
+      </div>
+    </div>
+  </div>
+
+  <div class={`stat-card p-4 rounded-xl bg-gradient-to-br ${cardColors[2].bg} border ${cardColors[2].border} backdrop-blur-sm`}>
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">{cardColors[2].icon}</span>
+      <div class="flex-1 min-w-0">
+        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">独立访客</p>
+        <p class={`stat-value text-xl font-bold tabular-nums ${cardColors[2].text}`}>--</p>
+      </div>
+    </div>
+  </div>
+
+  <div class={`stat-card p-4 rounded-xl bg-gradient-to-br ${cardColors[3].bg} border ${cardColors[3].border} backdrop-blur-sm`}>
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">{cardColors[3].icon}</span>
+      <div class="flex-1 min-w-0">
+        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">浏览页面</p>
+        <p class={`stat-value text-xl font-bold tabular-nums ${cardColors[3].text}`}>--</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .stat-card {
+    transition: all 0.3s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .dark .stat-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .stat-value {
+    transition: opacity 0.3s ease;
+  }
+</style>
+
+<script>
+  interface VisitorStats {
+    total_visits: number;
+    today_visits: number;
+    today_unique: number;
+    unique_count: number;
+    page_count: number;
+  }
+
+  function formatNumber(num: number): string {
+    if (num >= 10000) {
+      return (num / 10000).toFixed(1) + "w";
+    }
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1) + "k";
+    }
+    return String(num);
+  }
+
+  async function loadVisitorStats() {
+    const container = document.getElementById("visitor-stats");
+    if (!container) return;
+
+    const url = container.dataset.statsUrl;
+    if (!url) return;
+
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Failed to fetch stats");
+
+      const data: VisitorStats = await res.json();
+      const values = container.querySelectorAll(".stat-value");
+
+      if (values[0]) values[0].textContent = formatNumber(data.total_visits || 0);
+      if (values[1]) values[1].textContent = formatNumber(data.today_visits || 0);
+      if (values[2]) values[2].textContent = formatNumber(data.today_unique || 0);
+      if (values[3]) values[3].textContent = formatNumber(data.page_count || 0);
+    } catch (e) {
+      console.error("加载访客统计失败:", e);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", loadVisitorStats);
+  document.addEventListener("astro:page-load", loadVisitorStats);
+</script>

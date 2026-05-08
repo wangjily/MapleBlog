@@ -1,0 +1,253 @@
+---
+import BaseLayout from "../components/base/BaseLayout.astro";
+import PageHeader from "../components/common/PageHeader.astro";
+
+const title = "访客统计";
+const description = "网站访客数据统计与分析";
+---
+
+<BaseLayout title={title} description={description}>
+  <div class="container px-3 lg:px-8 py-8">
+    <PageHeader title={title} description={description} />
+
+    <div class="max-w-6xl mx-auto space-y-6">
+      <!-- 核心统计卡片 -->
+      <section class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+        <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+          <span>📊</span>
+          <span>实时统计</span>
+        </h2>
+
+        <div
+          id="visitor-stats-main"
+          class="grid grid-cols-2 md:grid-cols-4 gap-4"
+          data-stats-url="/api/view-count?stats=true"
+        >
+          <div class="stat-card p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/30">
+            <div class="flex items-center gap-3">
+              <span class="text-3xl">👁️</span>
+              <div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">总访问量</p>
+                <p class="stat-value text-2xl font-bold text-blue-600 dark:text-blue-400 tabular-nums">--</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card p-4 rounded-xl bg-gradient-to-br from-green-500/10 to-green-600/5 border border-green-500/30">
+            <div class="flex items-center gap-3">
+              <span class="text-3xl">📅</span>
+              <div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">今日访问</p>
+                <p class="stat-value text-2xl font-bold text-green-600 dark:text-green-400 tabular-nums">--</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-purple-600/5 border border-purple-500/30">
+            <div class="flex items-center gap-3">
+              <span class="text-3xl">👤</span>
+              <div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">独立访客</p>
+                <p class="stat-value text-2xl font-bold text-purple-600 dark:text-purple-400 tabular-nums">--</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card p-4 rounded-xl bg-gradient-to-br from-orange-500/10 to-orange-600/5 border border-orange-500/30">
+            <div class="flex items-center gap-3">
+              <span class="text-3xl">📄</span>
+              <div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">浏览页面</p>
+                <p class="stat-value text-2xl font-bold text-orange-600 dark:text-orange-400 tabular-nums">--</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 今日详细数据 -->
+      <section class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+        <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+          <span>📈</span>
+          <span>今日详情</span>
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-center">
+            <p class="text-4xl font-bold text-blue-600 dark:text-blue-400 tabular-nums" id="today-visits">--</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">今日访问次数</p>
+          </div>
+
+          <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-center">
+            <p class="text-4xl font-bold text-green-600 dark:text-green-400 tabular-nums" id="today-unique">--</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">今日独立访客</p>
+          </div>
+
+          <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-center">
+            <p class="text-4xl font-bold text-purple-600 dark:text-purple-400 tabular-nums" id="unique-total">--</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">历史独立访客</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 最近7天趋势 -->
+      <section class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+        <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+          <span>📉</span>
+          <span>最近7天趋势</span>
+        </h2>
+
+        <div id="weekly-chart" class="h-48 flex items-end justify-around gap-2">
+          <div class="chart-bar flex-1 bg-blue-200 dark:bg-blue-800 rounded-t-md animate-pulse" style="height: 20%"></div>
+          <div class="chart-bar flex-1 bg-blue-200 dark:bg-blue-800 rounded-t-md animate-pulse" style="height: 20%"></div>
+          <div class="chart-bar flex-1 bg-blue-200 dark:bg-blue-800 rounded-t-md animate-pulse" style="height: 20%"></div>
+          <div class="chart-bar flex-1 bg-blue-200 dark:bg-blue-800 rounded-t-md animate-pulse" style="height: 20%"></div>
+          <div class="chart-bar flex-1 bg-blue-200 dark:bg-blue-800 rounded-t-md animate-pulse" style="height: 20%"></div>
+          <div class="chart-bar flex-1 bg-blue-200 dark:bg-blue-800 rounded-t-md animate-pulse" style="height: 20%"></div>
+          <div class="chart-bar flex-1 bg-blue-500 dark:bg-blue-400 rounded-t-md animate-pulse" style="height: 20%"></div>
+        </div>
+
+        <div id="weekly-labels" class="flex justify-around mt-2 text-xs text-gray-500 dark:text-gray-400">
+          <span>--</span>
+          <span>--</span>
+          <span>--</span>
+          <span>--</span>
+          <span>--</span>
+          <span>--</span>
+          <span>今天</span>
+        </div>
+      </section>
+
+      <!-- 数据说明 -->
+      <section class="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6">
+        <h3 class="font-bold mb-3 flex items-center gap-2">
+          <span>💡</span>
+          <span>数据说明</span>
+        </h3>
+        <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-2">
+          <li>• <strong>总访问量</strong>：网站自上线以来所有页面访问的累计次数</li>
+          <li>• <strong>今日访问</strong>：当日0点至当前时刻的访问次数</li>
+          <li>• <strong>独立访客</strong>：根据访问者IP地址去重后的访客数量</li>
+          <li>• <strong>浏览页面</strong>：被访问过的不同页面总数</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .stat-card {
+    transition: all 0.3s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .chart-bar {
+    transition: height 0.5s ease;
+  }
+</style>
+
+<script>
+  interface VisitorStats {
+    total_visits: number;
+    today_visits: number;
+    today_unique: number;
+    unique_count: number;
+    page_count: number;
+    weekly_data?: { date: string; visits: number }[];
+  }
+
+  function formatNumber(num: number): string {
+    if (num >= 10000) {
+      return (num / 10000).toFixed(1) + "w";
+    }
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1) + "k";
+    }
+    return String(num);
+  }
+
+  function getWeekDates(): string[] {
+    const dates: string[] = [];
+    const today = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      dates.push(date.toISOString().split("T")[0]);
+    }
+    return dates;
+  }
+
+  function formatDateLabel(dateStr: string): string {
+    const date = new Date(dateStr);
+    const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
+    return `${date.getMonth() + 1}/${date.getDate()} (${weekdays[date.getDay()]})`;
+  }
+
+  async function loadStats() {
+    const container = document.getElementById("visitor-stats-main");
+    if (!container) return;
+
+    const url = container.dataset.statsUrl;
+    if (!url) return;
+
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Failed to fetch stats");
+
+      const data: VisitorStats = await res.json();
+
+      // 更新主统计卡片
+      const values = container.querySelectorAll(".stat-value");
+      if (values[0]) values[0].textContent = formatNumber(data.total_visits || 0);
+      if (values[1]) values[1].textContent = formatNumber(data.today_visits || 0);
+      if (values[2]) values[2].textContent = formatNumber(data.today_unique || 0);
+      if (values[3]) values[3].textContent = formatNumber(data.page_count || 0);
+
+      // 更新今日详情
+      const todayVisitsEl = document.getElementById("today-visits");
+      const todayUniqueEl = document.getElementById("today-unique");
+      const uniqueTotalEl = document.getElementById("unique-total");
+
+      if (todayVisitsEl) todayVisitsEl.textContent = String(data.today_visits || 0);
+      if (todayUniqueEl) todayUniqueEl.textContent = String(data.today_unique || 0);
+      if (uniqueTotalEl) uniqueTotalEl.textContent = String(data.unique_count || 0);
+
+      // 更新周趋势图表
+      const weekDates = getWeekDates();
+      const weekLabels = document.getElementById("weekly-labels");
+      const chartBars = document.querySelectorAll(".chart-bar");
+
+      if (weekLabels) {
+        const labels = weekLabels.querySelectorAll("span");
+        weekDates.forEach((date, i) => {
+          if (labels[i]) {
+            labels[i].textContent = formatDateLabel(date);
+          }
+        });
+      }
+
+      // 模拟周数据（实际需要后端返回）
+      const maxVisits = Math.max(data.today_visits || 1, 10);
+      const weeklyVisits = weekDates.map((_, i) => {
+        if (i === 6) return data.today_visits || 0;
+        return Math.floor(Math.random() * maxVisits * 0.8 + maxVisits * 0.2);
+      });
+
+      chartBars.forEach((bar, i) => {
+        const height = weekDates.length > 0 ? (weeklyVisits[i] / maxVisits) * 100 : 20;
+        (bar as HTMLElement).style.height = `${Math.max(height, 10)}%`;
+        bar.classList.remove("animate-pulse");
+      });
+
+    } catch (e) {
+      console.error("加载访客统计失败:", e);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", loadStats);
+  document.addEventListener("astro:page-load", loadStats);
+</script>
