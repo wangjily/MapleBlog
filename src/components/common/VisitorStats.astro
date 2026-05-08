@@ -6,12 +6,12 @@ interface Props {
 const { label = "访客" } = Astro.props;
 ---
 
-<div class="inline-flex items-center gap-1.5">
-  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-orange-500" viewBox="0 0 20 20" fill="currentColor">
+<div class="inline-flex items-center gap-2">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" viewBox="0 0 20 20" fill="currentColor">
     <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
   </svg>
-  <span id="visitor-count" class="text-sm font-medium text-orange-500 tabular-nums">--</span>
-  <span class="text-xs text-txt-light dark:text-darkmode-txt-light">{label}</span>
+  <span id="visitor-count" class="text-lg font-bold text-orange-500 tabular-nums">--</span>
+  <span class="text-sm text-txt-light dark:text-darkmode-txt-light">{label}</span>
 </div>
 
 <script>
