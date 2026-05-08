@@ -1,53 +1,16 @@
 ---
 interface Props {
   label?: string;
+  staticCount?: number;
 }
 
-const { label = "访客" } = Astro.props;
+const { label = "访客", staticCount = 0 } = Astro.props;
 ---
 
 <div class="inline-flex items-center gap-2">
   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" viewBox="0 0 20 20" fill="currentColor">
     <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
   </svg>
-  <span id="visitor-count" class="text-lg font-bold text-orange-500 tabular-nums">--</span>
+  <span class="text-lg font-bold text-orange-500 tabular-nums">{staticCount.toLocaleString()}</span>
   <span class="text-sm text-txt-light dark:text-darkmode-txt-light">{label}</span>
 </div>
-
-<script>
-  interface VisitorStats {
-    total_visits: number;
-    today_visits: number;
-    today_unique: number;
-    unique_count: number;
-    page_count: number;
-  }
-
-  function formatNumber(num: number): string {
-    if (num >= 10000) {
-      return (num / 10000).toFixed(1) + "w";
-    }
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + "k";
-    }
-    return String(num);
-  }
-
-  async function loadVisitorCount() {
-    const container = document.getElementById("visitor-count");
-    if (!container) return;
-
-    try {
-      const res = await fetch("/api/view-count?stats=true");
-      if (!res.ok) throw new Error("Failed to fetch stats");
-
-      const data: VisitorStats = await res.json();
-      container.textContent = formatNumber(data.total_visits || 0);
-    } catch (e) {
-      console.error("加载访客统计失败:", e);
-    }
-  }
-
-  document.addEventListener("DOMContentLoaded", loadVisitorCount);
-  document.addEventListener("astro:page-load", loadVisitorCount);
-</script>
