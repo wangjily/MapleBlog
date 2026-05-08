@@ -6,6 +6,7 @@ import type { AboutEntry } from "@/types";
 import { render } from "astro:content";
 import LiquidGlassLess from "@components/common/LiquidGlassLess.astro";
 import Social from "@components/common/Social.astro";
+import VisitorStats from "@components/common/VisitorStats.astro";
 import { getEntry } from "astro:content";
 import { SITE_INFO } from "@lib/config";
 
@@ -56,9 +57,9 @@ const daysRunning = Math.floor((today.getTime() - startDate.getTime()) / (1000 *
         <div class="text-2xl lg:text-3xl font-bold text-orange-500">{daysRunning}</div>
         <div class="text-xs text-txt-light dark:text-darkmode-txt-light mt-1">天</div>
       </div>
+      <!-- 访客统计 -->
       <div class="text-center p-4 rounded-2xl bg-white/30 dark:bg-black/30 border border-white/20 dark:border-white/10 backdrop-blur-md">
-        <div class="text-2xl lg:text-3xl font-bold text-orange-500">∞</div>
-        <div class="text-xs text-txt-light dark:text-darkmode-txt-light mt-1">访客</div>
+        <VisitorStats showTitle={false} compact={true} />
       </div>
     </div>
   </section>

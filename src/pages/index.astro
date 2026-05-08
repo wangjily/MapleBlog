@@ -9,7 +9,6 @@ import HomeNotesPreview from "@components/notes/HomeNotesPreview.astro";
 import ArticleCalendar from "@components/home/ArticleCalendar.astro";
 import AuthorProfile from "@components/home/AuthorProfile.astro";
 import ImageCarousel from "@components/home/ImageCarousel.astro";
-import VisitorStats from "@components/common/VisitorStats.astro";
 import { type CollectionEntry } from "astro:content";
 import { getSiteStats } from "@lib/contentParser";
 import { sortByDate } from "@lib/sortFunctions";
@@ -96,11 +95,6 @@ const siteStats = await getSiteStats();
     <!-- 图片轮播 - 放在日历下方 -->
     <section class="mb-4">
       <ImageCarousel />
-    </section>
-
-    <!-- 访客统计 - 轮播下方 -->
-    <section class="mb-4">
-      <VisitorStats showTitle={false} compact={true} />
     </section>
 
     <!-- Categories Section -->
