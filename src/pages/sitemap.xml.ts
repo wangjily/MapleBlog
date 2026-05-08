@@ -7,13 +7,28 @@ export const GET: APIRoute = async ({ request }) => {
   try {
     // 使用配置的网站URL，在生产环境使用正确的域名
     const siteUrl = getSiteUrl();
-    
+
     // 获取所有内容集合
     const [blogPosts, pages, notes] = await Promise.all([
       getCollection('blog', ({data, filePath}) => !data.draft && !filePath?.endsWith('-index.md')),
       getCollection('pages', ({data, filePath}) => !data.draft && !filePath?.endsWith('-index.md')),
       getCollection('notes', ({data, filePath}) => !data.draft && !filePath?.endsWith('-index.md'))
     ]);
+
+    // 收集所有分类和标签
+    const categories = new Set<string>();
+    const tags = new Set<string>();
+
+    blogPosts.forEach(post => {
+      // 收集分类
+      if (post.data.categories && Array.isArray(post.data.categories)) {
+        post.data.categories.forEach((cat: string) => categories.add(cat.toLowerCase()));
+      }
+      // 收集标签
+      if (post.data.tags && Array.isArray(post.data.tags)) {
+        post.data.tags.forEach((tag: string) => tags.add(tag.toLowerCase()));
+      }
+    });
 
     // 生成URL条目
     const urls: string[] = [];
@@ -27,6 +42,71 @@ export const GET: APIRoute = async ({ request }) => {
     <priority>1.0</priority>
   </url>`);
 
+    // 添加博客列表页
+    urls.push(`
+  <url>
+    <loc>${siteUrl}/blog</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>`);
+
+    // 添加笔记列表页
+    urls.push(`
+  <url>
+    <loc>${siteUrl}/notes</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>`);
+
+    // 添加关于页
+    urls.push(`
+  <url>
+    <loc>${siteUrl}/about</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`);
+
+    // 添加搜索页
+    urls.push(`
+  <url>
+    <loc>${siteUrl}/search</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>`);
+
+    // 添加游戏页
+    urls.push(`
+  <url>
+    <loc>${siteUrl}/games</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>`);
+
+    // 添加分类页面
+    categories.forEach(category => {
+      urls.push(`
+  <url>
+    <loc>${siteUrl}/blog/categories/${encodeURIComponent(category)}</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>`);
+    });
+
+    // 添加标签页面
+    tags.forEach(tag => {
+      urls.push(`
+  <url>
+    <loc>${siteUrl}/blog/tags/${encodeURIComponent(tag)}</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>`);
+    });
+
     // 添加博客文章
     blogPosts.forEach(post => {
       const lastmod = post.data.updatedAt || post.data.createdAt || new Date();
@@ -35,7 +115,7 @@ export const GET: APIRoute = async ({ request }) => {
     <loc>${siteUrl}/blog/${post.id}</loc>
     <lastmod>${lastmod.toISOString().split('T')[0]}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.8</priority>
   </url>`);
     });
 
@@ -59,13 +139,15 @@ export const GET: APIRoute = async ({ request }) => {
     <loc>${siteUrl}/notes/${note.id}</loc>
     <lastmod>${lastmod.toISOString().split('T')[0]}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.7</priority>
   </url>`);
     });
 
     // 生成完整的sitemap XML
     const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.join('')}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">${urls.join('')}
 </urlset>`;
 
     return new Response(sitemapXml, {
@@ -77,7 +159,7 @@ export const GET: APIRoute = async ({ request }) => {
     });
   } catch (error) {
     console.error('Error generating sitemap:', error);
-    
+
     // 返回基础sitemap作为fallback
     const fallbackSitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -88,12 +170,12 @@ export const GET: APIRoute = async ({ request }) => {
     <priority>1.0</priority>
   </url>
 </urlset>`;
-    
+
     return new Response(fallbackSitemap, {
       status: 200,
       headers: {
         'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'public, max-age=300' // 错误情况下缓存时间较短
+        'Cache-Control': 'public, max-age=300'
       }
     });
   }

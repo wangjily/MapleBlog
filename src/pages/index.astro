@@ -8,16 +8,13 @@ import LiquidGlass from "@components/common/LiquidGlassLess.astro";
 import HomeNotesPreview from "@components/notes/HomeNotesPreview.astro";
 import ArticleCalendar from "@components/home/ArticleCalendar.astro";
 import AuthorProfile from "@components/home/AuthorProfile.astro";
+import ImageCarousel from "@components/home/ImageCarousel.astro";
 import { type CollectionEntry } from "astro:content";
 import { getSiteStats } from "@lib/contentParser";
 import { sortByDate } from "@lib/sortFunctions";
 import { getEntries } from "@lib/contentParser";
 import RecentComments from "@components/common/RecentComments.astro";
 import RecommendedReadCardComponent from "@components/blog/RecommendedReadCard.astro";
-// 浏览量组件已移除
-// showInfo 函数将在需要时动态导入
-
-// 社交链接逻辑已移至 AuthorProfile 组件
 
 // 获取所有博客文章并排序
 const allPosts = (await getEntries("blog", sortByDate)) as BlogEntry[];
@@ -94,6 +91,12 @@ const siteStats = await getSiteStats();
         </div>
       </div>
     </section>
+
+    <!-- 图片轮播 - 放在日历下方 -->
+    <section class="mb-4">
+      <ImageCarousel />
+    </section>
+
     <!-- Categories Section -->
     <section class="rounded-lg">
       <!-- Categories Grid -->

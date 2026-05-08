@@ -1,0 +1,287 @@
+---
+// 首页图片轮播组件
+interface CarouselImage {
+  src: string;
+  alt: string;
+  credit?: string;
+}
+
+// 精选风景照片（使用 Unsplash）
+const carouselImages: CarouselImage[] = [
+  {
+    src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80",
+    alt: "壮观的雪山日出景观",
+    credit: "Photo by Samuel Ferrara on Unsplash"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=80",
+    alt: "云雾缭绕的山峰",
+    credit: "Photo by eberhard grossgasteiger on Unsplash"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=1920&q=80",
+    alt: "飞流直下的瀑布",
+    credit: "Photo by Dan Visan on Unsplash"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1920&q=80",
+    alt: "鸟瞰森林与湖泊",
+    credit: "Photo by Thomas Drouault on Unsplash"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=80",
+    alt: "金色阳光下的森林",
+    credit: "Photo by David Marcu on Unsplash"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=1920&q=80",
+    alt: "宁静的山间湖泊",
+    credit: "Photo by Serge Starosek on Unsplash"
+  }
+];
+---
+
+<div class="relative w-full h-[200px] md:h-[280px] rounded-[20px] overflow-hidden" role="region" aria-label="风景图片轮播">
+  <!-- 图片容器 -->
+  <div class="relative w-full h-full" id="carousel-container">
+    {carouselImages.map((image, index) => (
+      <div
+        class={`carousel-slide absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === 0 ? 'opacity-100' : 'opacity-0'}`}
+        data-index={index}
+        aria-hidden={index !== 0 ? "true" : "false"}
+      >
+        <img
+          src={image.src}
+          alt={image.alt}
+          class="w-full h-full object-cover"
+          loading={index === 0 ? "eager" : "lazy"}
+          decoding="async"
+        />
+        <!-- 渐变遮罩 -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+        <!-- 图片来源 -->
+        {image.credit && (
+          <div class="absolute bottom-2 right-3 text-xs text-white/60">
+            {image.credit}
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+
+  <!-- 导航指示器 -->
+  <div class="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-2 z-10" role="tablist" aria-label="轮播导航">
+    {carouselImages.map((_, index) => (
+      <button
+        class={`carousel-indicator w-2 h-2 rounded-full transition-all duration-300 ${index === 0 ? 'bg-white w-6' : 'bg-white/50 hover:bg-white/80'}`}
+        data-index={index}
+        role="tab"
+        aria-selected={index === 0 ? "true" : "false"}
+        aria-label={`切换到第 ${index + 1} 张图片`}
+      ></button>
+    ))}
+  </div>
+
+  <!-- 左右切换按钮 -->
+  <button
+    class="carousel-prev absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/40 transition-all duration-300 flex items-center justify-center text-white z-10"
+    aria-label="上一张图片"
+  >
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+    </svg>
+  </button>
+
+  <button
+    class="carousel-next absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/40 transition-all duration-300 flex items-center justify-center text-white z-10"
+    aria-label="下一张图片"
+  >
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+    </svg>
+  </button>
+
+  <!-- 播放/暂停按钮 -->
+  <button
+    class="carousel-play-pause absolute top-3 right-3 w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/40 transition-all duration-300 flex items-center justify-center text-white z-10"
+    aria-label="暂停轮播"
+  >
+    <svg class="pause-icon w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+    </svg>
+    <svg class="play-icon w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M8 5v14l11-7z" />
+    </svg>
+  </button>
+</div>
+
+<script>
+  function initCarousel() {
+    const container = document.getElementById('carousel-container');
+    if (!container) return;
+
+    const slides = container.querySelectorAll('.carousel-slide');
+    const indicators = document.querySelectorAll('.carousel-indicator');
+    const prevBtn = document.querySelector('.carousel-prev');
+    const nextBtn = document.querySelector('.carousel-next');
+    const playPauseBtn = document.querySelector('.carousel-play-pause');
+    const pauseIcon = playPauseBtn?.querySelector('.pause-icon');
+    const playIcon = playPauseBtn?.querySelector('.play-icon');
+
+    if (slides.length === 0) return;
+
+    let currentIndex = 0;
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    let isPlaying = true;
+    const autoPlayInterval = 5000; // 5秒切换一次
+
+    function goToSlide(index: number) {
+      // 移除所有幻灯片的活动状态
+      slides.forEach((slide, i) => {
+        slide.classList.remove('opacity-100');
+        slide.classList.add('opacity-0');
+        slide.setAttribute('aria-hidden', 'true');
+      });
+
+      indicators.forEach((indicator, i) => {
+        if (i === index) {
+          indicator.classList.add('bg-white', 'w-8');
+          indicator.classList.remove('bg-white/50');
+          indicator.setAttribute('aria-selected', 'true');
+        } else {
+          indicator.classList.remove('bg-white', 'w-8');
+          indicator.classList.add('bg-white/50');
+          indicator.setAttribute('aria-selected', 'false');
+        }
+      });
+
+      // 显示目标幻灯片
+      const targetSlide = slides[index];
+      targetSlide.classList.remove('opacity-0');
+      targetSlide.classList.add('opacity-100');
+      targetSlide.setAttribute('aria-hidden', 'false');
+
+      currentIndex = index;
+    }
+
+    function nextSlide() {
+      const nextIndex = (currentIndex + 1) % slides.length;
+      goToSlide(nextIndex);
+    }
+
+    function prevSlide() {
+      const prevIndex = (currentIndex - 1 + slides.length) % slides.length;
+      goToSlide(prevIndex);
+    }
+
+    function startAutoPlay() {
+      if (intervalId) clearInterval(intervalId);
+      intervalId = setInterval(nextSlide, autoPlayInterval);
+      isPlaying = true;
+      if (pauseIcon) pauseIcon.classList.remove('hidden');
+      if (playIcon) playIcon.classList.add('hidden');
+      playPauseBtn?.setAttribute('aria-label', '暂停轮播');
+    }
+
+    function stopAutoPlay() {
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+      isPlaying = false;
+      if (pauseIcon) pauseIcon.classList.add('hidden');
+      if (playIcon) playIcon.classList.remove('hidden');
+      playPauseBtn?.setAttribute('aria-label', '开始轮播');
+    }
+
+    function toggleAutoPlay() {
+      if (isPlaying) {
+        stopAutoPlay();
+      } else {
+        startAutoPlay();
+      }
+    }
+
+    // 绑定事件
+    prevBtn?.addEventListener('click', () => {
+      prevSlide();
+      if (isPlaying) startAutoPlay(); // 重置自动播放
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      nextSlide();
+      if (isPlaying) startAutoPlay(); // 重置自动播放
+    });
+
+    playPauseBtn?.addEventListener('click', toggleAutoPlay);
+
+    indicators.forEach((indicator, index) => {
+      indicator.addEventListener('click', () => {
+        goToSlide(index);
+        if (isPlaying) startAutoPlay(); // 重置自动播放
+      });
+    });
+
+    // 键盘导航
+    document.addEventListener('keydown', (e) => {
+      const carousel = document.querySelector('[role="region"][aria-label="风景图片轮播"]');
+      if (!carousel?.contains(document.activeElement) && document.activeElement !== document.body) return;
+
+      if (e.key === 'ArrowLeft') {
+        prevSlide();
+        if (isPlaying) startAutoPlay();
+      } else if (e.key === 'ArrowRight') {
+        nextSlide();
+        if (isPlaying) startAutoPlay();
+      } else if (e.key === ' ') {
+        e.preventDefault();
+        toggleAutoPlay();
+      }
+    });
+
+    // 鼠标悬停暂停
+    const carouselEl = document.querySelector('[role="region"][aria-label="风景图片轮播"]');
+    carouselEl?.addEventListener('mouseenter', () => {
+      if (isPlaying) stopAutoPlay();
+    });
+    carouselEl?.addEventListener('mouseleave', () => {
+      if (!isPlaying && isPlaying !== undefined) startAutoPlay();
+    });
+
+    // 触摸滑动支持
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    carouselEl?.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    carouselEl?.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+      const swipeThreshold = 50;
+      const diff = touchStartX - touchEndX;
+
+      if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+          nextSlide();
+        } else {
+          prevSlide();
+        }
+        if (isPlaying) startAutoPlay();
+      }
+    }
+
+    // 初始化自动播放
+    startAutoPlay();
+  }
+
+  // 页面加载完成后初始化
+  document.addEventListener('DOMContentLoaded', initCarousel);
+
+  // Astro 页面切换后重新初始化
+  document.addEventListener('astro:page-load', initCarousel);
+</script>

@@ -11,10 +11,10 @@ function Notice({
   return (
     <div
       className={`mb-6 rounded-lg border border-current py-2 px-4
-      ${type === "note" && "text-[#24a9ab]"}
-      ${type === "tip" && "text-[#65ab24]"}
-      ${type === "info" && "text-[#d7af2d]"}
-      ${type === "warning" && "text-[#f43633]"}
+      ${type === "note" && "text-[#0e7a7d]"}
+      ${type === "tip" && "text-[#4a8c1c]"}
+      ${type === "info" && "text-[#b8860b]"}
+      ${type === "warning" && "text-[#c92a2a]"}
     `}
     >
       <div className="flex items-center">

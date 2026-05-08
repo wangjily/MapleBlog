@@ -22,7 +22,7 @@ const socialLinks = socialEntry?.data.platforms;
 
 const startDate = new Date(SITE_INFO.START_DATE);
 const today = new Date();
-const daysRunning = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+const daysRunning = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
 ---
 
 <BaseLayout title={title} description={description} image={image?.src}>

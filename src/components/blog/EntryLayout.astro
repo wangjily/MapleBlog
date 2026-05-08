@@ -5,6 +5,8 @@ import { render, type CollectionEntry } from "astro:content";
 import EntryHeader from "@components/common/EntryHeader.astro";
 import LiquidGlassLess from "@components/common/LiquidGlassLess.astro";
 import type { BlogEntry } from "@/types";
+import { SITE_INFO, getSiteUrl } from "@lib/config";
+import { formatDate } from "@lib/formatDate";
 
 interface Props {
   entry: CollectionEntry<"blog">;
@@ -13,19 +15,82 @@ interface Props {
 const isDev = import.meta.env.DEV;
 const { entry } = Astro.props;
 const isDraft = entry.data.draft;
-const { title, description, image } = entry.data;
+const { title, description, image, imageAlt, createdAt, updatedAt, author, categories, tags } = entry.data;
 
 const entryDescription =
   description ||
   (entry.body ? plainify(entry.body.slice(0, 200)) : "");
+
+// 获取网站URL
+const siteUrl = getSiteUrl();
+
+// 格式化日期
+const publishDate = createdAt ? formatDate(createdAt) : null;
+const updateDate = updatedAt ? formatDate(updatedAt) : null;
+
+// 结构化数据
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": title,
+  "description": entryDescription,
+  "image": image?.src ? `${siteUrl}${image.src}` : `${siteUrl}${SITE_INFO.LOGO_IMAGE}`,
+  "author": {
+    "@type": "Person",
+    "name": author || SITE_INFO.AUTHOR
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": SITE_INFO.SITE_NAME,
+    "logo": {
+      "@type": "ImageObject",
+      "url": `${siteUrl}${SITE_INFO.LOGO_IMAGE}`
+    }
+  },
+  "datePublished": createdAt?.toISOString(),
+  "dateModified": updatedAt?.toISOString() || createdAt?.toISOString(),
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": `${siteUrl}/blog/${entry.id}`
+  }
+};
 ---
 
 <BaseLayout title={title} description={entryDescription} image={image?.src}>
+  <!-- 结构化数据 -->
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} slot="head" />
+
+  <!-- 面包屑结构化数据 -->
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "首页",
+        "item": siteUrl
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "博客",
+        "item": `${siteUrl}/blog`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": title,
+        "item": `${siteUrl}/blog/${entry.id}`
+      }
+    ]
+  })} />
+
   <!-- 草稿提示 -->
   {
     isDraft && isDev && (
       <section class="flex container px-3 lg:px-8">
-        <div class="bg-yellow-100 dark:bg-yellow-900 border-l-4 border-yellow-500 p-4 mb-6 w-full rounded-r-lg">
+        <div class="bg-yellow-100 dark:bg-yellow-900 border-l-4 border-yellow-500 p-4 mb-6 w-full rounded-r-lg" role="alert">
           <p class="text-sm text-yellow-700 dark:text-yellow-200">
             这是一篇草稿文章，仅在开发环境可见
           </p>
@@ -54,9 +119,9 @@ const entryDescription =
       wrapperClass="rounded-[28px]"
       textClass="p-5 lg:p-8"
     >
-      <div class="markdown-content">
+      <article class="markdown-content" role="main" aria-label="文章内容">
         <slot />
-      </div>
+      </article>
     </LiquidGlassLess>
   </section>
 

@@ -13,11 +13,6 @@ export const PAGINATION_CONFIG = {
   DEFAULT_PAGE_SIZE: 8,
 } as const;
 
-// 从 astro.config.mjs 获取配置（如果需要的话）
-// 注意：在 Astro 中，config 文件的配置通常不能直接在运行时访问
-// 这里提供一个统一的配置管理方式
-
-
 // 导出便捷的获取函数
 export const getPageSize = (type: 'blog' | 'notes' = 'blog'): number => {
   switch (type) {
@@ -48,8 +43,9 @@ export const SITE_INFO = {
   DEV_URL: 'http://localhost:4321',
   LOGO_IMAGE: '/favicon/logo.png',
   KEY_WORDS: '静态网站,静态网站系统,Maple_CMS',
-  GOOGLE_ANALYTICS_ID: 'G-XXXXXX',  // 需改为你自己的Google Analytics ID
-  BAIDU_ANALYTICS_ID: 'XXXXXXXXXX', // 需改为你自己的百度分析ID
+  // 从环境变量获取分析ID，生产环境需要设置
+  GOOGLE_ANALYTICS_ID: import.meta.env.PUBLIC_GOOGLE_ANALYTICS_ID || '',
+  BAIDU_ANALYTICS_ID: import.meta.env.PUBLIC_BAIDU_ANALYTICS_ID || '',
   // 网站初始时间（用于计算运行时长）
   START_DATE: '2026-05-04',
   // ICP 备案信息

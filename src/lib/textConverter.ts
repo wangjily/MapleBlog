@@ -8,7 +8,7 @@ marked.use({
   gfm: true, // 启用GitHub风格的Markdown
   breaks: true, // 支持换行符转换为<br>
   pedantic: false,
-  sanitize: false,
+  // sanitize: false, // 已禁用，默认启用安全过滤
   smartLists: true,
   smartypants: false,
 });
@@ -16,17 +16,44 @@ marked.use({
 // 自定义渲染器，增强功能
 const renderer = new marked.Renderer();
 
+// HTML 实体编码函数，防止 XSS
+function escapeHtml(text: string): string {
+  const entityMap: Record<string, string> = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+    "/": "&#x2F;",
+    "`": "&#x60;",
+    "=": "&#x3D;",
+  };
+  return String(text).replace(/[&<>"'`=/]/g, (s) => entityMap[s]);
+}
+
+// URL 安全验证函数
+function isValidUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return ["http:", "https:", "mailto:"].includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+}
+
 // 自定义标题渲染，添加锚点ID
 renderer.heading = function(text: string, level: number) {
   const escapedText = slug(text);
+  const safeText = escapeHtml(text);
   return `<h${level} id="${escapedText}">
-    <a href="#${escapedText}" class="anchor-link">${text}</a>
+    <a href="#${escapedText}" class="anchor-link">${safeText}</a>
   </h${level}>`;
 };
 
 // 自定义代码块渲染，添加语言标识和复制按钮
 renderer.code = function(code: string, language: string | undefined) {
-  const validLang = language && language !== '' ? language : 'text';
+  const validLang = language && language !== '' ? escapeHtml(language) : 'text';
+  const safeCode = escapeHtml(code);
   return `<div class="code-block-wrapper">
     <div class="code-block-header">
       <span class="code-language">${validLang}</span>
@@ -37,7 +64,7 @@ renderer.code = function(code: string, language: string | undefined) {
         </svg>
       </button>
     </div>
-    <pre><code class="language-${validLang}">${code}</code></pre>
+    <pre><code class="language-${validLang}">${safeCode}</code></pre>
   </div>`;
 };
 
@@ -51,21 +78,31 @@ renderer.table = function(header: string, body: string) {
   </div>`;
 };
 
-// 自定义链接渲染，外部链接添加target="_blank"
+// 自定义链接渲染，外部链接添加target="_blank"，并验证URL安全性
 renderer.link = function(href: string, title: string | null, text: string) {
-  // 在服务端渲染时，简单判断是否为外部链接
+  const safeText = escapeHtml(text);
+  const safeTitle = title ? ` title="${escapeHtml(title)}"` : '';
+
+  // URL 安全验证
+  let safeHref = href;
+  if (!isValidUrl(href)) {
+    safeHref = "#";
+  }
+
   const isExternal = href.startsWith('http://') || href.startsWith('https://');
   const target = isExternal ? ' target="_blank" rel="noopener noreferrer"' : '';
-  const titleAttr = title ? ` title="${title}"` : '';
-  return `<a href="${href}"${titleAttr}${target}>${text}</a>`;
+  return `<a href="${escapeHtml(safeHref)}"${safeTitle}${target}>${safeText}</a>`;
 };
 
 // 自定义图片渲染，添加懒加载和响应式
 renderer.image = function(href: string, title: string | null, text: string) {
-  const titleAttr = title ? ` title="${title}"` : '';
+  const safeTitle = title ? ` title="${escapeHtml(title)}"` : '';
+  const safeAlt = escapeHtml(text);
+  const safeHref = isValidUrl(href) ? href : "";
+
   return `<figure class="markdown-image">
-    <img src="${href}" alt="${text}"${titleAttr} loading="lazy" class="responsive-image" />
-    ${text ? `<figcaption>${text}</figcaption>` : ''}
+    <img src="${escapeHtml(safeHref)}" alt="${safeAlt}"${safeTitle} loading="lazy" decoding="async" class="responsive-image" />
+    ${text ? `<figcaption>${safeAlt}</figcaption>` : ''}
   </figure>`;
 };
 
@@ -85,41 +122,8 @@ export const slugify = (content: string) => {
 // markdownify
 export const markdownify = async (content: string, div?: boolean) => {
   const options = { renderer };
-  // content = await extractImageUrls(content);
   return div ? marked.parse(content, options) : marked.parseInline(content, options);
 };
-
-/**
- * 将文章内容中的图片地址,替换为"/_image?href=http://xxx.com"格式
- * 地址形如：`![上传界面](https://mmbiz.qpic.cn/mmbiz_png/iblROEu41FIHTtPeEX2Aic9T4lzVGX4eNtibP1Eg8vjvpficwz5DrUtS5Iib5cAploCOgIrv7SkxF2t8HasphOlEfqQ/640?wx_fmt=png&from=appmsg&tp=webp&wxfrom=5&wx_lazy=1)`
- */
-async function extractImageUrls(content: string): Promise<string> {
-  const regex = /!\[.*?\]\((.*?)\)/g;
-  const matches = content.match(regex);
-  if (matches) {
-    matches.forEach(match => {
-      const url = match.match(/\((.*?)\)/)?.[1];
-      console.log("图片URL",url)
-      if (url) {
-        content = content.replace(url, transformImageUrl(url));
-      }
-    });
-  }
-  console.log("替换后的文章内容",content)
-  return content;
-}
-
-/**
- * 将图片转化为/_image?href=http://xxxx.com格式
- * @param url - 原始图片URL
- * @returns 转换后的URL
- */
-function transformImageUrl(url: string): string {
-  if (url.indexOf("/_image?href=") !== -1) {
-    return url;
-  }
-  return `/_image?href=${encodeURI(url)}`;
-}
 
 // hyphen to space, uppercase only first letter in each word
 export const upperHumanize = (content: string | undefined) => {

@@ -6,6 +6,8 @@ import { getSiteStats } from "@lib/contentParser";
 const footerMenus = [
   { name: "首页", url: "/", target: "_self" },
   { name: "博客", url: "/blog", target: "_self" },
+  { name: "游戏", url: "/games", target: "_self" },
+  { name: "动态", url: "/notes", target: "_self" },
   { name: "关于", url: "/about", target: "_self" },
   { name: "搜索", url: "/search", target: "_self" },
   { name: "条款", url: "/terms", target: "_self" },
@@ -27,6 +29,8 @@ const statsData = {
 <footer
   id="main-footer"
   class="container px-3 lg:px-8 fixed bottom-0 left-0 right-0 z-40 pointer-events-none transition-all duration-300 fast-slow"
+  role="contentinfo"
+  aria-label="页面底部"
 >
   <div class="mx-auto py-2 md:py-4">
     <!-- 整体浮动容器 -->
@@ -48,27 +52,30 @@ const statsData = {
           <div
             id="footer-expanded"
             class="opacity-0 max-h-0 transition-all duration-300 fast-slow overflow-hidden"
+            aria-hidden="true"
           >
             <div class="z-50 flex flex-row justify-between items-center">
               <!-- 导航菜单 -->
               <div class="hidden md:block">
-                <ul
-                  class="flex flex-wrap justify-center items-center gap-1 md:gap-2"
-                >
-                  {
-                    footerMenus.map((menu) => (
-                      <li class="relative">
-                        <a
-                          href={menu.url}
-                          target={menu.target}
-                          class="block px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm font-medium text-txt-p transition-all duration-300 dark:text-darkmode-txt-p rounded-lg relative z-10 hover:text-orange-500 hover:bg-white/10"
-                        >
-                          {menu.name}
-                        </a>
-                      </li>
-                    ))
-                  }
-                </ul>
+                <nav aria-label="底部导航">
+                  <ul
+                    class="flex flex-wrap justify-center items-center gap-1 md:gap-2"
+                  >
+                    {
+                      footerMenus.map((menu) => (
+                        <li class="relative">
+                          <a
+                            href={menu.url}
+                            target={menu.target}
+                            class="block px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm font-medium text-txt-p transition-all duration-300 dark:text-darkmode-txt-p rounded-lg relative z-10 hover:text-orange-500 hover:bg-white/10"
+                          >
+                            {menu.name}
+                          </a>
+                        </li>
+                      ))
+                    }
+                  </ul>
+                </nav>
               </div>
 
               <!-- 统计数据和返回顶部 -->

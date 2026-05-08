@@ -1,0 +1,137 @@
+---
+import BaseLayout from "@components/base/BaseLayout.astro";
+import LiquidGlassLess from "@components/common/LiquidGlassLess.astro";
+import { SITE_INFO } from "@lib/config";
+
+// 游戏列表数据
+const games = [
+  {
+    id: "2048",
+    name: "2048",
+    description: "经典的滑动数字合并游戏，相同的数字会合并成更大的数字，挑战你的逻辑思维！",
+    thumbnail: "https://play-lh.googleusercontent.com/klmIMH-rMermqtjUgEpdZ-1u4kqj8Z8V8zVT3H3plfxV6JLqgEPFCMBxvPPtJe1XQ=w240-h480-rw",
+    url: "https://play2048.co/",
+    icon: "🎮",
+    color: "from-orange-500 to-amber-500"
+  },
+  {
+    id: "flappy-bird",
+    name: "Flappy Bird",
+    description: "控制小鸟穿过管道，考验你的反应速度和时机把握能力！",
+    thumbnail: "https://img001.png",
+    url: "https://flappybird.io/",
+    icon: "🐦",
+    color: "from-green-500 to-emerald-500"
+  },
+  {
+    id: "tetris",
+    name: "俄罗斯方块",
+    description: "经典永不褪色的益智游戏，消除方块获得分数，体验纯粹的乐趣！",
+    thumbnail: "https://img001.png",
+    url: "https://tetris.com/",
+    icon: "🧱",
+    color: "from-blue-500 to-indigo-500"
+  },
+  {
+    id: "snake",
+    name: "贪吃蛇",
+    description: "控制蛇吃掉食物让自己变长，但不能碰到自己的身体，经典中的经典！",
+    thumbnail: "https://img001.png",
+    url: "https://playsnake.org/",
+    icon: "🐍",
+    color: "from-purple-500 to-violet-500"
+  },
+  {
+    id: "sudoku",
+    name: "数独",
+    description: "填充9x9网格，每行、每列和每个3x3宫格内数字1-9不能重复。",
+    thumbnail: "https://img001.png",
+    url: "https://www.247sudoku.com/",
+    icon: "🧩",
+    color: "from-pink-500 to-rose-500"
+  },
+  {
+    id: "chess",
+    name: "国际象棋",
+    description: "世界最流行的棋盘游戏，锻炼你的策略思维和预判能力。",
+    thumbnail: "https://img001.png",
+    url: "https://www.chess.com/",
+    icon: "♟️",
+    color: "from-gray-600 to-gray-800"
+  }
+];
+---
+
+<BaseLayout title="游戏" description="放松一下，来玩一些经典小游戏吧！">
+  <!-- 页面标题 -->
+  <section class="container px-3 lg:px-8 pt-8 pb-6">
+    <div class="relative text-center">
+      <div class="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+        <svg class="w-64 h-64 opacity-[0.06]" viewBox="0 0 100 100" fill="currentColor">
+          <path d="M50 5 C30 20 10 25 8 40 C6 55 20 65 30 60 C35 58 38 52 40 45 C42 38 50 35 50 20 C50 35 58 38 60 45 C62 52 65 58 70 60 C80 65 94 55 92 40 C90 25 70 20 50 5Z" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="relative">
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-3 tracking-tight">
+          <span class="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent">游戏时光</span>
+        </h1>
+        <p class="text-txt-light dark:text-darkmode-txt-light text-lg md:text-xl max-w-xl mx-auto">
+          放松一下，来玩一些经典小游戏吧！
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 游戏网格 -->
+  <section class="container px-3 lg:px-8 pb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+      {games.map((game) => (
+        <a
+          href={game.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="group block"
+        >
+          <LiquidGlassLess heavy textClass="p-5 lg:p-6 rounded-[28px] h-full">
+            <div class="flex flex-col h-full">
+              <!-- 游戏图标 -->
+              <div class={`w-14 h-14 rounded-2xl bg-gradient-to-br ${game.color} flex items-center justify-center text-3xl mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                {game.icon}
+              </div>
+
+              <!-- 游戏名称 -->
+              <h3 class="text-xl font-bold text-txt-p dark:text-darkmode-txt-p mb-2 group-hover:text-orange-500 transition-colors">
+                {game.name}
+              </h3>
+
+              <!-- 游戏描述 -->
+              <p class="text-sm text-txt-light dark:text-darkmode-txt-light leading-relaxed flex-grow">
+                {game.description}
+              </p>
+
+              <!-- 开始游戏按钮 -->
+              <div class="mt-4 flex items-center gap-2 text-orange-500 font-medium text-sm group-hover:gap-3 transition-all">
+                <span>开始游戏</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
+              </div>
+            </div>
+          </LiquidGlassLess>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- 提示信息 -->
+  <section class="container px-3 lg:px-8 pb-12">
+    <LiquidGlassLess textClass="p-5 rounded-2xl max-w-2xl mx-auto text-center">
+      <div class="flex items-center justify-center gap-2 text-txt-light dark:text-darkmode-txt-light text-sm">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span>部分游戏需要网络连接才能加载，请在稳定的网络环境下体验</span>
+      </div>
+    </LiquidGlassLess>
+  </section>
+</BaseLayout>

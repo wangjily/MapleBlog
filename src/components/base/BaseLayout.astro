@@ -27,7 +27,7 @@ let seoSettings: any = {};
 let customSettings: any = {};
 
 // 基础设置变量
-// console.log("网站基础信息：", basicSettings);
+// 开发环境调试信息已禁用
 const siteTitle = SITE_INFO.SITE_NAME;
 const siteSubTitle = SITE_INFO.SUBNAME;
 const siteImage = SITE_INFO.LOGO_IMAGE || "/favicon.ico";
@@ -48,7 +48,7 @@ const customFooterCode = customSettings?.custom_footer_code || "";
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <!-- favicon -->
     <link
@@ -98,6 +98,9 @@ const customFooterCode = customSettings?.custom_footer_code || "";
     </title>
 
     {canonical && <link rel="canonical" href={canonical} item-prop="url" />}
+
+    <!-- 自定义 head 内容（如结构化数据） -->
+    <slot name="head" />
 
     <meta
       name="description"

@@ -46,13 +46,23 @@ const menu = [
     children: [],
   },
   {
+    id: 5,
+    name: "游戏",
+    url: "/games",
+    target: "_self",
+    position: "header",
+    parent_id: null,
+    sort_order: 4,
+    children: [],
+  },
+  {
     id: 4,
     name: "关于",
     url: "/about",
     target: "_self",
     position: "header",
     parent_id: null,
-    sort_order: 4,
+    sort_order: 5,
     children: [],
   },
 ];
@@ -96,10 +106,11 @@ const menu = [
     </div>
 
     <!-- navbar toggler -->
-    <input id="nav-toggle" type="checkbox" class="hidden" />
+    <input id="nav-toggle" type="checkbox" class="hidden" aria-label="导航菜单切换" aria-expanded="false" />
     <label
       for="nav-toggle"
       class="order-2 cursor-pointer flex items-center md:hidden text-txt-p dark:text-darkmode-txt-p lg:order-1"
+      aria-label="打开导航菜单"
     >
       <svg
         id="show-button"
@@ -366,9 +377,29 @@ const menu = [
           if ((this as HTMLInputElement).checked) {
             navMenu.classList.remove("hidden");
             navMenu.classList.add("show");
+            // 可访问性：菜单打开时设置 aria-expanded
+            (navToggle as HTMLInputElement).setAttribute("aria-expanded", "true");
+            // 焦点陷阱：将焦点移到菜单内第一个链接
+            const firstLink = navMenu.querySelector("a") as HTMLElement;
+            firstLink?.focus();
           } else {
             navMenu.classList.add("hidden");
             navMenu.classList.remove("show");
+            // 可访问性：菜单关闭时设置 aria-expanded
+            (navToggle as HTMLInputElement).setAttribute("aria-expanded", "false");
+          }
+        });
+
+        // ESC 键关闭菜单
+        document.addEventListener("keydown", function(e) {
+          if (e.key === "Escape" && (navToggle as HTMLInputElement).checked) {
+            (navToggle as HTMLInputElement).checked = false;
+            navMenu.classList.add("hidden");
+            navMenu.classList.remove("show");
+            (navToggle as HTMLInputElement).setAttribute("aria-expanded", "false");
+            // 将焦点移回菜单切换按钮
+            const toggleLabel = document.querySelector('label[for="nav-toggle"]') as HTMLElement;
+            toggleLabel?.focus();
           }
         });
       }

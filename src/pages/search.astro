@@ -21,8 +21,6 @@ const searchList = (await getEntriesBatch(
   undefined,
   false,
 )) as SearchableEntry[];
-
-console.log("准备搜索列表", searchList);
 ---
 
 <EntryLayout searchList={searchList} />

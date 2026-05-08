@@ -66,8 +66,6 @@ const {
   totalArticleCount,
 } = Astro.props;
 
-console.log("当前页面数据：", categoryPosts);
-
 const { slug, page = "1" } = Astro.params;
 // 转换为组件需要的格式
 const entries: BlogEntry[] = categoryPosts.map((post: any) => ({

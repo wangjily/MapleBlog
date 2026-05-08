@@ -22,6 +22,14 @@ const notesPosts = await getEntries("notes");
 
 const allPosts = [...blogPosts, ...notesPosts];
 
+// 统一使用本地时区的日期格式化函数（避免UTC偏移导致日期错位）
+function toLocalYMD(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 // 生成当前年度的日期数据（从1月1日开始）
 function generateCalendarData(): DayData[][] {
   const today = new Date();
@@ -37,13 +45,6 @@ function generateCalendarData(): DayData[][] {
   const daysToSubtract = startDay === 0 ? 6 : startDay - 1;
   currentDate.setDate(currentDate.getDate() - daysToSubtract);
 
-  // 统一使用 createdAt 字段统计每天的文章数量（使用本地时区的YYYY-MM-DD，避免UTC偏移导致日期错位）
-  const toLocalYMD = (d: Date) => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`;
-  };
   const articleCounts = new Map<string, number>();
   allPosts.forEach((post) => {
     const dateToUse = post.data.createdAt || new Date();
@@ -147,7 +148,8 @@ function getArticleStats() {
   allPosts.forEach((post) => {
     const dateToUse = post.data.createdAt || new Date();
     if (new Date(dateToUse).getFullYear() === currentYear) {
-      activeDays.add(new Date(dateToUse).toISOString().split("T")[0]);
+      // 使用本地时区日期，与日历网格保持一致
+      activeDays.add(toLocalYMD(new Date(dateToUse)));
     }
   });
 
